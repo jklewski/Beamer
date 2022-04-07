@@ -1,0 +1,48 @@
+html { height: 100%; display: flex; } body { margin: auto; }
+
+
+p {
+    font-family: Garamond;
+    font-size: 1.5rem;
+    }
+
+.main {
+    margin: auto;
+    width: 100vw;
+    padding: 10px;
+    }
+
+
+.matrix {
+    position: relative;
+}
+.matrix:before, .matrix:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    border: 1px solid #000;
+    width: 6px;
+    height: 100%;
+}
+.matrix:before {
+    left: -6px;
+    border-right: 0;
+}
+.matrix:after {
+    right: -6px;
+    border-left: 0;
+}
+
+.container {
+    width:100vw;
+    height:100px;
+    display: flex;   
+
+}
+
+#svgcontainer{
+    max-width:300px;
+    max-height:100px;
+    display: block;
+    margin: auto;
+}
