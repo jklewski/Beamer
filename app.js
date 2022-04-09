@@ -81,9 +81,9 @@ geoDraw(nodesX,loads,BC)
 var KeAll = [];
 for (let i=0;i<nodesX.length-1;i++) {
 KeAll[i] = [
-    [12,6*L[i],-12,6].map(x => x/L[i]**3),
+    [12,6*L[i],-12,6*L[i]].map(x => x/L[i]**3),
     [6*L[i],4*L[i]**2,-6*L[i],2*L[i]**2].map(x => x/L[i]**3),
-    [-12,-6*L[i],12*L[i],-6*L[i]].map(x => x/L[i]**3),
+    [-12,-6*L[i],12,-6*L[i]].map(x => x/L[i]**3),
     [6*L[i],2*L[i]**2,-6*L[i],4*L[i]**2].map(x => x/L[i]**3)
 ];
 }
