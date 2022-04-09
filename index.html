@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,66 +9,208 @@
     <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/all.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src=
-    "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML">
+    <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+        </script>
+    <script src="https://cdn.plot.ly/plotly-2.6.3.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+    <!--INPUT SPINNER-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-input-spinner@3.1.8/src/bootstrap-input-spinner.js"></script>
+
+          <script>
+    $(document).ready(function () {
+      $("input[type='number']").inputSpinner({
+        // button text/icons
+        decrementButton: "<strong>-</strong>",
+        incrementButton: "<strong>+</strong>",
+        // class of input group
+        groupClass: "input-group-spinner",
+        // button class
+        buttonsClass: "btn-outline-secondary",
+        // button width
+        buttonsWidth: "2.5em",
+        // text alignment
+        textAlign: "center",
+        // delay in milliseconds
+        autoDelay: 500,
+        // interval in milliseconds
+        autoInterval: 100,
+        // set this `true` to disable the possibility to enter or paste the number via keyboard
+        buttonsOnly: false,
+        // set this to `false` to disallow the use of the up and down arrow keys to step
+        keyboardStepping: true,
+        // the locale, per default detected automatically from the browser
+        locale: navigator.language,
+        // the template of the input
+        template: // the template of the input
+          '<div class="input-group ${groupClass}">' +
+          '<input type="text" inputmode="decimal" style="text-align: ${textAlign}" class="form-control form-control-text-input"/>' +
+          '<div class="input-group-prepend"><button style="min-width: ${buttonsWidth}" class="btn btn-decrement ${buttonsClass} btn-minus" type="button">${decrementButton}</button></div>' +
+          '<div class="input-group-append"><button style="min-width: ${buttonsWidth}" class="btn btn-increment ${buttonsClass} btn-plus" type="button">${incrementButton}</button></div>' +
+          '</div>'})})
     </script>
-     <script src="https://cdn.plot.ly/plotly-2.6.3.min.js"></script>
-</head>
+
+    </head>
+
 <body>
-    
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">Beams</label>
+          </div>
+        <select class="custom-select" id="beamSelector">
+            <option selected>2</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
+        <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">Left support</label>
+          </div>
+        <select class="custom-select" id="LeftSupportCondition">
+            <option value="1">Pinned</option>
+            <option value="2" selected>Rigid</option>
+            <option value="0">Free</option>
+        </select>
+        <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">Right support</label>
+          </div>
+        <select class="custom-select" id="RightSupportCondition">
+            <option value="1" selected>Pinned</option>
+            <option value="2">Rigid</option>
+            <option value="0">Free</option>
+        </select>
+    </div>
+   
+    <div class="input-group mb-0 type1" style="display:block;">
+        <div class="row">
+            <div class="col-4">
+            <input id="L1" data-prefix="L<sub>1</sub>" class="lengths" type="number" value="1000" min="200" max="5000"
+            step="100" />
+            </div>
+            <div class="col-4">
+            <input id="q1" data-prefix="q<sub>1</sub>" class="loads" type="number" value="50" min="0" max="100"
+            step="5" />
+            </div>
+        </div>
+    </div>
 
-    <div class="main">
+    <div class="input-group mb-0 type1" style="display:block;">
+        <div class="row">
+            <div class="col-4">
+            <input id="L2" data-prefix="L<sub>2</sub>" class="lengths" type="number" value="1000" min="200" max="5000"
+            step="100" />
+            </div>
+            <div class="col-4">
+            <input id="q2" data-prefix="q<sub>2</sub>" class="loads" type="number" value="50" min="0" max="100"
+            step="5" />
+            </div>
+        </div>
+    </div>
+    <div class="input-group mb-0 type1" style="display:none;">
+        <div class="row">
+            <div class="col-4">
+            <input id="L3" data-prefix="L<sub>3</sub>" class="lengths" type="number" value="1000" min="200" max="5000"
+            step="100" />
+            </div>
+            <div class="col-4">
+            <input id="q3" data-prefix="q<sub>3</sub>" class="loads" type="number" value="50" min="0" max="100"
+            step="5" />
+            </div>
+        </div>
+    </div>
+    <div class="input-group mb-0 type1" style="display:none;">
+        <div class="row">
+            <div class="col-4">
+            <input id="L4" data-prefix="L<sub>4</sub>" class="lengths" type="number" value="1000" min="200" max="5000"
+            step="100" />
+            </div>
+            <div class="col-4">
+            <input id="q4" data-prefix="q<sub>4</sub>" class="loads" type="number" value="50" min="0" max="100"
+            step="5" />
+            </div>
+        </div>
+    </div>
+    <div class="input-group mb-0 type1" style="display:none;">
+        <div class="row">
+            <div class="col-4">
+            <input id="L5" data-prefix="L<sub>5</sub>" class="lengths" type="number" value="1000" min="200" max="5000"
+            step="100" />
+            </div>
+            <div class="col-4">
+            <input id="q5" data-prefix="q<sub>5</sub>" class="loads" type="number" value="50" min="0" max="100"
+            step="5" />
+            </div>
+        </div>
+    </div>
+
+     
+
+
+
+
+
+    <div class="container-sm" style="border:solid; max-width:700px">
+        <div class="responsive-plot" id=myFig style="height:100%; width:100%;"></div>
+        <div class="responsive-plot" id="myPlot" style="width:100%; "></div>
+        <div class="responsive-plot" id="myPlot2" style="width:100%;"></div>
+
+      </div>
       
-        
-<div id = myFig style="width:100%; height:500px"></div>  
-<div id="myPlot" style="width:100%; height:500px"></div>
-<div id="myPlot2" style="width:100%; height:500px"></div>
-</div>
-<p>
-$$
 
-\frac{EI}{L^3}
-\begin{bmatrix}
-12 & 6L & -12 & 6L & 0 & 0\\
-6L & 4L^2 & -6L & 2L^2 & 0 & 0\\
--12 & -6L & 12+12 & -6L+6L & -12 & 6\\
-6L & 2L^2 & -6L+6L & 4L^2+4L^2 & -6 & 2\\
-0 & 0 & -12 & -6L & 12 & -6L\\
-0 & 0 & 6L & 2L^2 & -6L & 4L^2
-\end{bmatrix}
 
-\begin{bmatrix}
-0\\
-\phi_A\\
-0\\
-\phi_B\\
-0\\
-\phi_C
-\end{bmatrix}
 
-=
+    <p>
+        $$
 
-\begin{bmatrix}
-R_A\\
-0\\
-R_B\\
-0\\
-R_C\\
-0
-\end{bmatrix}
-+
-\begin{bmatrix}
--qL/2\\
--qL^2/12\\
--qL\\
-0\\
--qL/2 \\
-qL^2/12
-\end{bmatrix}
-$$
+        \frac{EI}{L^3}
+        \begin{bmatrix}
+        12 & 6L & -12 & 6L & 0 & 0\\
+        6L & 4L^2 & -6L & 2L^2 & 0 & 0\\
+        -12 & -6L & 12+12 & -6L+6L & -12 & 6\\
+        6L & 2L^2 & -6L+6L & 4L^2+4L^2 & -6 & 2\\
+        0 & 0 & -12 & -6L & 12 & -6L\\
+        0 & 0 & 6L & 2L^2 & -6L & 4L^2
+        \end{bmatrix}
+
+        \begin{bmatrix}
+        0\\
+        \phi_A\\
+        0\\
+        \phi_B\\
+        0\\
+        \phi_C
+        \end{bmatrix}
+
+        =
+
+        \begin{bmatrix}
+        R_A\\
+        0\\
+        R_B\\
+        0\\
+        R_C\\
+        0
+        \end{bmatrix}
+        +
+        \begin{bmatrix}
+        -qL/2\\
+        -qL^2/12\\
+        -qL\\
+        0\\
+        -qL/2 \\
+        qL^2/12
+        \end{bmatrix}
+        $$
     </p>
 
 
-<script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
+
 </html>

@@ -1,17 +1,7 @@
-html { height: 100%; display: flex; } body { margin: auto; }
-
-
 p {
     font-family: Garamond;
     font-size: 1.5rem;
     }
-
-.main {
-    margin: auto;
-    width: 100vw;
-    padding: 10px;
-    }
-
 
 .matrix {
     position: relative;
@@ -33,16 +23,3 @@ p {
     border-left: 0;
 }
 
-.container {
-    width:100vw;
-    height:100px;
-    display: flex;   
-
-}
-
-#svgcontainer{
-    max-width:300px;
-    max-height:100px;
-    display: block;
-    margin: auto;
-}

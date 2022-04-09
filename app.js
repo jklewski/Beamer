@@ -1,9 +1,53 @@
+//add some listeners
+nbeamsSelector = document.querySelector("#beamSelector")
+nbeamsSelector.addEventListener("change", function(){
+    inputs = document.getElementsByClassName("type1")
+    nbeams = parseInt(nbeamsSelector.value);
+    for (let i = 0; i<inputs.length;i++) {
+        if (i<nbeams) {
+        inputs[i].style.display = 'block'
+        }else if (i>=nbeams) {
+        inputs[i].style.display = 'none'    
+        }
+    }
+})
+
+$(".lengths").change(mainFunction)
+$(".loads").change(mainFunction)
+mainFunction()
+
+
+function mainFunction() {
+//get inputs
+var lengths = document.getElementsByClassName("lengths")
+var inLoads = document.getElementsByClassName("loads")
+
+var L = [];
+var loads = [];
+for (let i = 0; i<lengths.length;i++) {
+    if (lengths[i].parentElement.parentElement.parentElement.style.display.includes('block')) {
+        L.push(parseFloat(lengths[i].value)/1000)
+    }
+    if (inLoads[i].parentElement.parentElement.parentElement.style.display.includes('block')) {
+        loads.push(parseFloat(inLoads[i].value)/100)
+    }
+}
+
+var nodesX = [0]
+for (let i = 0; i<L.length;i++) {
+nodesX[i+1] = nodesX[i]+L[i]
+}
+
+var BC = new Array(nodesX.length).fill(1)
+BC[0] = parseInt(document.getElementById('LeftSupportCondition').value)
+BC[BC.length-1] = parseInt(document.getElementById('RightSupportCondition').value)
+
+
 //user inputs
 var E = 1;
 var I = 1;
-var nodesX = [0,1,2]
-var loads = [0.5,0]
-var BC = [2,1,1] //0 = free, 1 = pinned, 2 = fixed
+
+
 
 //calculate and initiate some stuff
 var numElements = 2+(nodesX.length-1)*2;
@@ -167,6 +211,8 @@ var data = [trace1]
 //plotly
 var myAx = document.getElementById("myFig")
 Plotly.newPlot(myAx,data,layout)
+
+
 }
 geoDraw(nodesX,loads,BC)
 
@@ -197,10 +243,12 @@ var y = linspace(0,0,1000);
 for (let i=0;i<(Rv.length);i++) {
     y = x.map((a,j) => a>=xRv[i]?y[j]+Rv[i]:y[j])    
 }
+
 //second all UDL
 dx = x[2]-x[1];
-x_start_udl = [0,1,3] //start of udl
-x_end_udl = [1,3,4]
+
+x_start_udl = nodesX.slice(0,nodesX.length-1) //start of udl
+x_end_udl = nodesX.slice(1,nodesX.length)
 var q = loads
 y_udl = linspace(0,0,1000)
 for (let i=0;i<x_start_udl.length;i++) {
@@ -250,3 +298,14 @@ layout2 = {
 }
 var data2 = [trace_M]
 Plotly.newPlot(ax2,data2,layout2)
+
+window.onresize = function() {
+    ax = document.getElementsByClassName("responsive-plot")
+    for (let i = 0; i<ax.length; i++) {
+    ax[i].style.width = "100%"
+    Plotly.Plots.resize(ax[i]);
+    }
+    
+    }
+
+}
