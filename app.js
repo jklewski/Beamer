@@ -1,3 +1,32 @@
+//sidebar
+const open_btn = document.querySelector(".open-btn")
+const close_btn = document.querySelector(".close-btn")
+const popup = document.querySelector(".popup")
+const main_popup = document.querySelector(".main-popup")
+
+open_btn.addEventListener("click", () => {
+    popup.style.display='flex';
+    main_popup.style.cssText = 'animation: slide-in .5s ease; animation-fill-mode: forwards'
+}
+)
+
+close_btn.addEventListener('click', () => {
+    main_popup.style.cssText = 'animation: slide-out .5s ease; animation-fill-mode: forwards'
+    setTimeout(() => {
+        popup.style.display='none';
+    },500);
+})
+
+window.addEventListener('click', (e) => {
+    if (e.target == document.querySelector('.popup-overlay')) {
+    main_popup.style.cssText = 'animation: slide-out .5s ease; animation-fill-mode: forwards'
+    setTimeout(() => {
+        popup.style.display='none';
+    },500);
+}
+})  
+
+
 //add some listeners
 nbeamsSelector = document.querySelector("#beamSelector")
 nbeamsSelector.addEventListener("change", function(){
@@ -14,9 +43,9 @@ nbeamsSelector.addEventListener("change", function(){
 
 $(".lengths").change(mainFunction)
 $(".loads").change(mainFunction)
+$(".custom-select").change(mainFunction)
+
 mainFunction()
-
-
 function mainFunction() {
 //get inputs
 var lengths = document.getElementsByClassName("lengths")
@@ -199,7 +228,9 @@ for (let i=0;i<nodesX.length-1;i++) {
 shapes = [...shapes, ...loadShapes]
 var layout = { shapes:shapes,
  xaxis: {scaleanchor: "y",range:[-0.1,0.1+nodesX[nodesX.length-1]]},
- yaxis: {visible:false}
+ yaxis: {visible:false},
+ paper_bgcolor:'rgba(0,0,0,0)',
+ plot_bgcolor:'rgba(0,0,0,0)'
  }
  var trace1 = {
      x:nodesX,
@@ -271,38 +302,52 @@ for (let i=1;i<y_tot.length;i++) {
     M_tot[i] = M_tot[i-1]+dx*(y_tot[i]+y_tot[i+1])/2
 }
 
-ax = document.getElementById('myPlot');
 ax2 = document.getElementById('myPlot2');
 trace = {
     x:x,
     y:y_tot,
     mode:'line',
-    fill: 'tozeroy'
+    fill: 'tozeroy',
+    name: 'Shear force',
 }
-layout = {
-    xaxis: {range:[-0.1,totLength+0.1], title:""},
-    yaxis: {range:[-1,1], title:"V(x)"},
-}
-data = [trace]
-Plotly.newPlot(ax,data,layout)
 
 var trace_M = {
     x:x,
     y:M_tot.map(x=>x*5),
     mode:'line',
-    fill: 'tozeroy'
+    fill: 'tozeroy',
+    name: 'Moment',
 }
-layout2 = {
+layout = {
     xaxis: {range:[-0.1,totLength+0.1], title:""},
     yaxis: {range:[-1,1], title:"M(x)"},
+    showlegend: true,
+    legend: {
+      x: 1,
+      xanchor: 'right',
+      y: 1},
+      paper_bgcolor:'rgba(0,0,0,0)',
+      plot_bgcolor:'rgba(0,0,0,0)'
 }
-var data2 = [trace_M]
-Plotly.newPlot(ax2,data2,layout2)
+var data2 = [trace_M,trace]
+Plotly.newPlot(ax2,data2,layout)
+
+//write matrix
+var p = document.getElementById('KMatrix')
+matrixString = '$$\\frac{EI}{L^3}\\begin{bmatrix}';
+for (let i=0;i<Ks.length;i++) {
+    rowString = Ks[i].map(x => Math.round(x)).toString()
+    rowString = rowString.replaceAll(',','&') 
+    matrixString = matrixString.concat(rowString,'\\\\')
+}
+matrixString = matrixString.concat('\\end{bmatrix}$$')
+p.innerHTML = matrixString
+MathJax.Hub.Queue(["Typeset",MathJax.Hub])
 
 window.onresize = function() {
     ax = document.getElementsByClassName("responsive-plot")
     for (let i = 0; i<ax.length; i++) {
-    ax[i].style.width = "100%"
+    ax[i].style.width = "700px"
     Plotly.Plots.resize(ax[i]);
     }
     
