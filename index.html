@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/all.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script type="text/javascript" async
+    <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
         </script>
     <script src="https://cdn.plot.ly/plotly-2.6.3.min.js"></script>
@@ -58,132 +58,149 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <label class="input-group-text" for="inputGroupSelect01">Beams</label>
-            </div>
-            <select class="custom-select" id="beamSelector">
-                <option value="1">1</option>
-                <option value="2" selected>2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-            </select>
-            <div class="input-group-prepend">
-                <label class="input-group-text" for="inputGroupSelect01">Left support</label>
-            </div>
-            <select class="custom-select" id="LeftSupportCondition">
-                <option value="1">Pinned</option>
-                <option value="2" selected>Rigid</option>
-                <option value="0">Free</option>
-            </select>
-            <div class="input-group-prepend">
-                <label class="input-group-text" for="inputGroupSelect01">Right support</label>
-            </div>
-            <select class="custom-select" id="RightSupportCondition">
-                <option value="1" selected>Pinned</option>
-                <option value="2">Rigid</option>
-                <option value="0">Free</option>
-            </select>
+    <div class="container-fluid wrapper">
+        <div class="row wrapper">
+            <div class="col-sm-auto inputs">
 
-            <div class="btn">
-                <button class="open-btn">Show K-matrix</button>
-            </div>
-            <div class="popup">
-                <div class="popup-overlay"></div>
-                <div class="main-popup">
-                    <div class="popup-content">
-                        <span class="close-btn">&times;</span>
-                        <p id="KMatrix"></p>
+                <div class="input-group pt-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="inputGroupSelect01">Beams</label>
+                    </div>
+                    <select class="custom-select" id="beamSelector">
+                        <option value="1">1</option>
+                        <option value="2" selected>2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                <div class="input-group">
+
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="inputGroupSelect01">Left support</label>
+                    </div>
+                    <select class="custom-select" id="LeftSupportCondition">
+                        <option value="1">Pinned</option>
+                        <option value="2" selected>Rigid</option>
+                        <option value="0">Free</option>
+                    </select>
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="inputGroupSelect01">Right support</label>
+                    </div>
+                    <select class="custom-select" id="RightSupportCondition">
+                        <option value="1" selected>Pinned</option>
+                        <option value="2">Rigid</option>
+                        <option value="0">Free</option>
+                    </select>
+                </div>
+
+
+
+
+                <div class="input-group type1" style="display:block;">
+                    <div class="row">
+                        <div class="col-6">
+                            <input id="L1" data-prefix="L<sub>1</sub>" class="lengths" type="number" value="1" min="0.2"
+                                max="5" step="0.1" data-decimals="1" />
+                        </div>
+                        <div class="col-6">
+                            <input id="q1" data-prefix="q<sub>1</sub>" class="loads" type="number" value="50" min="0"
+                                max="100" step="5" />
+                        </div>
                     </div>
                 </div>
+
+                <div class="input-group type1" style="display:block;">
+                    <div class="row">
+                        <div class="col-6">
+                            <input id="L2" data-prefix="L<sub>2</sub>" class="lengths" type="number" value="1" min="0.2"
+                                max="5" step="0.1" data-decimals="1" />
+                        </div>
+                        <div class="col-6">
+                            <input id="q2" data-prefix="q<sub>2</sub>" class="loads" type="number" value="50" min="0"
+                                max="100" step="5" />
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group type1" style="display:none;">
+                    <div class="row">
+                        <div class="col-6">
+                            <input id="L3" data-prefix="L<sub>3</sub>" class="lengths" type="number" value="1" min="0.2"
+                                max="5" step="0.1" data-decimals="1" />
+                        </div>
+                        <div class="col-6">
+                            <input id="q3" data-prefix="q<sub>3</sub>" class="loads" type="number" value="50" min="0"
+                                max="100" step="5" />
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group type1" style="display:none;">
+                    <div class="row">
+                        <div class="col-6">
+                            <input id="L4" data-prefix="L<sub>4</sub>" class="lengths" type="number" value="1" min="0.2"
+                                max="5" step="0.1" data-decimals="1" />
+                        </div>
+                        <div class="col-6">
+                            <input id="q4" data-prefix="q<sub>4</sub>" class="loads" type="number" value="50" min="0"
+                                max="100" step="5" />
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group type1" style="display:none;">
+                    <div class="row">
+                        <div class="col-6">
+                            <input id="L5" data-prefix="L<sub>5</sub>" class="lengths" type="number" value="1" min="0.2"
+                                max="5" step="0.1" data-decimals="1" />
+                        </div>
+                        <div class="col-6">
+                            <input id="q5" data-prefix="q<sub>5</sub>" class="loads" type="number" value="50" min="0"
+                                max="100" step="5" />
+                        </div>
+                    </div>
+                </div>
+                
+
+
+
+
+
+                <div class="btn">
+                    <button class="open-btn">Show K-matrix</button>
+                </div>
+                <div class="popup">
+                    <div class="popup-overlay"></div>
+                    <div class="main-popup">
+                        <div class="popup-content">
+                            <span class="close-btn">&times;</span>
+                            <p id="KMatrix"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="footnote" style="bottom:0;">
+                <p style= "position: absolute; bottom: 0; left: 5;">jonas@niklewski.com</p>
+                </div>
+            </div>
+
+
+
+
+            <div class="col-sm-auto">
+                <div class="container">
+                    <div class="responsive-plot" id=myFig style="width:100%;"></div>
+                    <div class="responsive-plot" id="myPlot2" style="width:100%;"></div>
+                </div>
             </div>
         </div>
-
-
-        <div class="input-group mb-0 type1" style="display:block;">
-            <div class="row">
-                <div class="col-4">
-                    <input id="L1" data-prefix="L<sub>1</sub>" class="lengths" type="number" value="1" min="0.2"
-                        max="5" step="0.1" data-decimals="2"/>
-                </div>
-                <div class="col-4">
-                    <input id="q1" data-prefix="q<sub>1</sub>" class="loads" type="number" value="50" min="0" max="100"
-                        step="5"/>
-                </div>
-            </div>
-        </div>
-
-        <div class="input-group mb-0 type1" style="display:block;">
-            <div class="row">
-                <div class="col-4">
-                    <input id="L2" data-prefix="L<sub>2</sub>" class="lengths" type="number" value="1" min="0.2"
-                    max="5" step="0.1" data-decimals="2"/>
-                </div>
-                <div class="col-4">
-                    <input id="q2" data-prefix="q<sub>2</sub>" class="loads" type="number" value="50" min="0" max="100"
-                        step="5" />
-                </div>
-            </div>
-        </div>
-        <div class="input-group mb-0 type1" style="display:none;">
-            <div class="row">
-                <div class="col-4">
-                    <input id="L3" data-prefix="L<sub>3</sub>" class="lengths" type="number" value="1" min="0.2"
-                    max="5" step="0.1" data-decimals="2"/>
-                </div>
-                <div class="col-4">
-                    <input id="q3" data-prefix="q<sub>3</sub>" class="loads" type="number" value="50" min="0" max="100"
-                        step="5" />
-                </div>
-            </div>
-        </div>
-        <div class="input-group mb-0 type1" style="display:none;">
-            <div class="row">
-                <div class="col-4">
-                    <input id="L4" data-prefix="L<sub>4</sub>" class="lengths" type="number" value="1" min="0.2"
-                    max="5" step="0.1" data-decimals="2"/>
-                </div>
-                <div class="col-4">
-                    <input id="q4" data-prefix="q<sub>4</sub>" class="loads" type="number" value="50" min="0" max="100"
-                        step="5" />
-                </div>
-            </div>
-        </div>
-        <div class="input-group mb-0 type1" style="display:none;">
-            <div class="row">
-                <div class="col-4">
-                    <input id="L5" data-prefix="L<sub>5</sub>" class="lengths" type="number" value="1" min="0.2"
-                    max="5" step="0.1" data-decimals="2"/>
-                </div>
-                <div class="col-4">
-                    <input id="q5" data-prefix="q<sub>5</sub>" class="loads" type="number" value="50" min="0" max="100"
-                        step="5" />
-                </div>
-            </div>
-        </div>
-
-
-
-
-
-
-
-        <div class="container-sm" style="max-width:700px">
-            <div class="responsive-plot" id=myFig style="width:100%;"></div>
-            <div class="responsive-plot" id="myPlot2" style="width:100%;"></div>
-
-        </div>
+        
     </div>
 
 
 
-</html>
-
-
-
 <script src="app.js"></script>
+
+
 </body>
 
 </html>

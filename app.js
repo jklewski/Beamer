@@ -218,13 +218,13 @@ function mainFunction() {
             }
         }
         shapes = [...shapes, ...loadShapes]
-        var layout = {
+        layout = {
             shapes: shapes,
-            xaxis: { scaleanchor: "y", range: [-0.1, 0.1 + nodesX[nodesX.length - 1]] },
-            yaxis: { visible: true, range: [-0.1, 1] },
+            xaxis: { scaleanchor: "y", range: [-0.1, totLength + 0.1] },
+            yaxis: { visible: true},
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
-            margin: { b: 0, t: 10 },
+            margin: {l:0, b: 0, t: 10 },
         }
         var trace1 = {
             x: nodesX,
@@ -236,8 +236,6 @@ function mainFunction() {
         //plotly
         var myAx = document.getElementById("myFig")
         Plotly.newPlot(myAx, data, layout)
-
-
     }
     geoDraw(nodesX, loads, BC)
 
@@ -310,7 +308,7 @@ function mainFunction() {
         fill: 'tozeroy',
         name: 'Moment',
     }
-    layout = {
+    layout2 = {
         xaxis: { range: [-0.1, totLength + 0.1], title: "" },
         yaxis: { range: [-1, 1], title: "c(x)" },
         showlegend: true,
@@ -321,28 +319,77 @@ function mainFunction() {
         },
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
-        margin: { b: 100, t: 0 },
+        margin: {l:0, b: 100, t: 0 },
     }
+    
     var data2 = [trace_M, trace]
-    Plotly.newPlot(ax2, data2, layout)
+    Plotly.newPlot(ax2, data2, layout2)
 
     //write matrix
     var p = document.getElementById('KMatrix')
-    matrixString = '$$\\frac{EI}{L^3}\\begin{bmatrix}';
+    matrixString = '$$EI\\begin{bmatrix}';
     for (let i = 0; i < Ks.length; i++) {
         rowString = Ks[i].map(x => Math.round(x)).toString()
         rowString = rowString.replaceAll(',', '&')
+        if (i<Ks.length) {
+        matrixString = matrixString.concat(rowString, '\\\\')
+        }
+    }
+    matrixString = matrixString.concat('\\end{bmatrix}','\\begin{bmatrix}')
+    for (let i = 0; i < Ks.length; i++) {
+        if (i % 2 == 0) {
+        rowString = "\\delta_" + (i/2)           
+        } 
+        if (!(i % 2 == 0)) {
+        rowString = "\\phi_" + ((i-1)/2)
+    }
+    if (u_zero.includes(i)) {
+        rowString = '0'
+    }
+    if (i<Ks.length) {
         matrixString = matrixString.concat(rowString, '\\\\')
     }
+    }
+    matrixString = matrixString.concat('\\end{bmatrix} = \\begin{bmatrix}')
+    
+    //Reactions
+    for (let i = 0; i < Ks.length; i++) {
+        if (i % 2 == 0) {
+        rowString = "R_{s," + (i/2) +'}'           
+        } 
+        if (!(i % 2 == 0)) {
+        rowString = "M_{s," + ((i-1)/2) + '}'
+    }
+    if (R_zero.includes(i)) {
+        rowString = '0'
+    }
+    if (i<Ks.length) {
+        matrixString = matrixString.concat(rowString, '\\\\')
+    }
+    }
+    matrixString = matrixString.concat('\\end{bmatrix} + \\begin{bmatrix}')
+    //external forces
+    for (let i = 0; i < Ks.length; i++) {
+        F_n_str = F_n.map(x => Math.round(x*100)/100)
+        rowString = F_n_str[i].toString() + "\\\\"
+        matrixString = matrixString.concat(rowString)           
+    }
     matrixString = matrixString.concat('\\end{bmatrix}$$')
+
     p.innerHTML = matrixString
-    MathJax.Hub.Queue(["Typeset", MathJax.Hub])
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub,p])
 
     window.onresize = function () {
         ax = document.getElementsByClassName("responsive-plot")
+        Plotly.relayout(ax[0], {'xaxis.range': layout.xaxis.range});
+        Plotly.relayout(ax[1], {'xaxis.range': layout2.xaxis.range});
+        
         for (let i = 0; i < ax.length; i++) {
             ax[i].style.width = "100%"
             Plotly.Plots.resize(ax[i]);
+            
+                
+            
         }
 
     }
