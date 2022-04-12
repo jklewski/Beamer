@@ -26,8 +26,6 @@ window.addEventListener('click', (e) => {
     }
 })
 
-
-//add some listeners
 nbeamsSelector = document.querySelector("#beamSelector")
 nbeamsSelector.addEventListener("change", function () {
     inputs = document.getElementsByClassName("type1")
@@ -41,18 +39,35 @@ nbeamsSelector.addEventListener("change", function () {
     }
 })
 
-$(".lengths, .loads, .custom-select").change(mainFunction)
+ploadsSelector = document.getElementById("ploadSelector")
+ploadsSelector.addEventListener("change", function () {
+    inputs = document.getElementsByClassName("type2")
+    npoints = parseInt(ploadSelector.value);
+    for (let i = 0; i < inputs.length; i++) {
+        if (i < npoints) {
+            inputs[i].style.display = 'block'
+        } else if (i >= npoints) {
+            inputs[i].style.display = 'none'
+        }
+    }
+})
+
+$(".lengths, .loads, .ploads,.ploadsx,.custom-select").change(mainFunction)
 
 //run mainfunction on startup
 mainFunction()
 
 function mainFunction() {
+
     //get inputs
     var lengths = document.getElementsByClassName("lengths")
     var inLoads = document.getElementsByClassName("loads")
-
+    var inPLoads = document.getElementsByClassName("ploads")
+    var inPLoadsx = document.getElementsByClassName("ploadsx")
+    
     var L = [];
     var loads = [];
+    //GET NODES
     for (let i = 0; i < lengths.length; i++) {
         if (lengths[i].parentElement.parentElement.parentElement.style.display.includes('block')) {
             L.push(parseFloat(lengths[i].value))
@@ -61,12 +76,32 @@ function mainFunction() {
             loads.push(parseFloat(inLoads[i].value) / 100)
         }
     }
-
     var nodesX = [0]
     for (let i = 0; i < L.length; i++) {
         nodesX[i + 1] = nodesX[i] + L[i]
     }
 
+    A = document.getElementsByClassName('ploadsx')
+    for (let i = 0; i < A.length; i++) {
+    A[i].max = nodesX[nodesX.length-1]
+    }
+
+    var pointLoads = {x:[],y:[]};
+    A = []
+    for (let i = 0; i < inPLoads.length; i++) {
+        if (inPLoads[i].parentElement.parentElement.parentElement.style.display.includes('block')) {
+            pointLoads.y.push(parseFloat(inPLoads[i].value/100))
+            pointLoads.x.push(parseFloat(inPLoadsx[i].value))
+        }
+    }
+        
+   
+
+    //GET P-LOADS
+
+   //var pointLoads = {x:[0.5],y:[0.1]};
+
+    //GET END SUPPORT CONDITIONS
     var BC = new Array(nodesX.length).fill(1)
     BC[0] = parseInt(document.getElementById('LeftSupportCondition').value)
     BC[BC.length - 1] = parseInt(document.getElementById('RightSupportCondition').value)
@@ -128,6 +163,11 @@ function mainFunction() {
 
     var Ks = compile(KeAll)
 
+    //round values for perforamnce (small error expected)
+    for (let i = 0; i<Ks.length; i++) {
+        Ks[i] = Ks[i].map(x=> Math.round(x*1000)/1000)
+    }
+
     var u = []
     var R = []
     for (let i = 0; i < Ks.length; i++) {
@@ -148,7 +188,21 @@ function mainFunction() {
             F_n[i * 2 + 1] = loads[i - 1] * L[i - 1] ** 2 / 12 - loads[i] * L[i] ** 2 / 12;
         }
     }
+    //add points loads
+    for (let j=0;j<pointLoads.x.length;j++) {
+        var id_end = nodesX.map((x,i) => x > pointLoads.x[j]?i:null).filter(x => x/=null)[0];
+        var id_start = id_end-1;
+        //horizontal
+        x_1 = pointLoads.x[j] - nodesX[id_start]
+        x_2 = (nodesX[id_end]-nodesX[id_start])-x_1;
+        Li =  x_1+x_2;
+        F_n[2 * id_start] -= pointLoads.y[j]*(3*x_1+x_2)*x_2**2/Li**3 //reaction left (negative)
+        F_n[2 * id_start + 1] -= pointLoads.y[j]*x_2**2*x_1/Li**2//moment left (negative)
+        F_n[2 * id_end] -= pointLoads.y[j]*(3*x_2+x_1)*x_1**2/Li**3 //reaction right (negative)
+        F_n[2 * id_end + 1] += pointLoads.y[j]*x_1**2*x_2/Li**2 //moment right (positive)
+    }
 
+    
     //unwrap matrix to system of equations
     eq = [];
     for (let j = 0; j < sz; j++) {
@@ -204,7 +258,7 @@ function mainFunction() {
             }
 
         }
-        //plot loads
+        //plot UDL loads
         var loadShapes = [];
         for (let i = 0; i < nodesX.length - 1; i++) {
             loadShapes[i] = {
@@ -217,8 +271,29 @@ function mainFunction() {
                 line: { width: 1 },
             }
         }
+
+        ploadAnnotations = [];
+        for (let i = 0; i < pointLoads.x.length; i++) {
+            ploadAnnotations[i] = {
+              x: pointLoads.x[i],
+              y: 0.01,
+              xref: 'x',
+              yref: 'y',
+              text: 'P<sub>1</sub>',
+              font: {
+                size: 25,
+                color: '#ff0000'},
+                arrowcolor: '#ff0000',
+              showarrow: true,
+              arrowhead: 9,
+              ax: 0,
+              ay: -75
+            }
+        }
+
         shapes = [...shapes, ...loadShapes]
         layout = {
+            annotations: ploadAnnotations,
             shapes: shapes,
             xaxis: { scaleanchor: "y", range: [-0.1, totLength + 0.1] },
             yaxis: { visible: true},
@@ -256,18 +331,16 @@ function mainFunction() {
         Rv[i] = sol2[id][1]
     }
 
+    //Time to calculate the shear force and moment diagram from reactions and loads!
     var xRv = nodesX
     var x = linspace(0, totLength, 1000);
-    var y = linspace(0, 0, 1000);
-
-    //first all reactions
+    var y = linspace(0, 0, 1000); //shear force (y?)
+    //first add all reactions
     for (let i = 0; i < (Rv.length); i++) {
         y = x.map((a, j) => a >= xRv[i] ? y[j] + Rv[i] : y[j])
     }
-
-    //second all UDL
+    //add all UDL
     dx = x[2] - x[1];
-
     x_start_udl = nodesX.slice(0, nodesX.length - 1) //start of udl
     x_end_udl = nodesX.slice(1, nodesX.length)
     var q = loads
@@ -281,8 +354,16 @@ function mainFunction() {
             }
         }
     }
-
     y_tot = y.map((y, i) => y + y_udl[i])
+
+    //finally add all point loads
+    for (let j = 0; j < pointLoads.x.length; j++) {
+        //from left to right, find all index to change V(x)
+        var id_x = x.map((x,i) => x>pointLoads.x[j]?i:null).filter(x=>x/=null);
+          for (let k=0;k<id_x.length;k++){
+              y_tot[id_x[k]] -= pointLoads.y[j]
+          }
+    }
 
     var M_tot = []
 

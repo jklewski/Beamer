@@ -160,45 +160,86 @@
                         </div>
                     </div>
                 </div>
-                
 
 
-
-
-
-                <div class="btn">
-                    <button class="open-btn">Show K-matrix</button>
+                <div class="input-group pt-5">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="inputGroupSelect01">Point loads</label>
+                    </div>
+                    <select class="custom-select" id="ploadSelector">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2" selected>2</option>
+                        <option value="3">3</option>
+                    </select>
                 </div>
-                <div class="popup">
-                    <div class="popup-overlay"></div>
-                    <div class="main-popup">
-                        <div class="popup-content">
-                            <span class="close-btn">&times;</span>
-                            <p id="KMatrix"></p>
+                <div class="input-group type2" style="display:block;">
+                    <div class="row">
+                        <div class="col-6">
+                            <input id="P1" data-prefix="P<sub>1</sub>" class="ploads" type="number" value="10" min="0"
+                                max="100" step="5" />
+                        </div>
+                        <div class="col-6">
+                            <input id="P1" data-prefix="x<sub>1</sub>" class="ploadsx" type="number" value="0.5"
+                                min="0.1" max="1" step="0.1" data-decimals="1" />
                         </div>
                     </div>
                 </div>
-                <div class="footnote" style="bottom:0;">
-                <p style= "position: absolute; bottom: 0; left: 5;">jonas@niklewski.com</p>
+                <div class="input-group type2" style="display:block;">
+                    <div class="row">
+                        <div class="col-6">
+                            <input id="P2" data-prefix="P<sub>2</sub>" class="ploads" type="number" value="10" min="0"
+                                max="100" step="5" />
+                        </div>
+                        <div class="col-6">
+                            <input id="P2" data-prefix="x<sub>2</sub>" class="ploadsx" type="number" value="0.6"
+                                min="0.1" max="1" step="0.1" data-decimals="1" />
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group type2" style="display:none;">
+                    <div class="row">
+                        <div class="col-6">
+                            <input id="P2" data-prefix="P<sub>3</sub>" class="ploads" type="number" value="10" min="0"
+                                max="100" step="5" />
+                        </div>
+                        <div class="col-6">
+                            <input id="P3" data-prefix="x<sub>3</sub>" class="ploadsx" type="number" value="0.7"
+                                min="0.1" max="1" step="0.1" data-decimals="1" />
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+            <div class="btn">
+                <button class="open-btn">Show K-matrix</button>
+            </div>
+            <div class="popup">
+                <div class="popup-overlay"></div>
+                <div class="main-popup">
+                    <div class="popup-content">
+                        <span class="close-btn">&times;</span>
+                        <p id="KMatrix"></p>
+                    </div>
                 </div>
             </div>
-
-
-
-
-            <div class="col-sm-auto">
-                <div class="container">
-                    <div class="responsive-plot" id=myFig style="width:100%;"></div>
-                    <div class="responsive-plot" id="myPlot2" style="width:100%;"></div>
-                </div>
+            <div class="footnote" style="bottom:0;">
+                <p style="position: absolute; bottom: 0; left: 5;">jonas@niklewski.com</p>
             </div>
         </div>
-        
+
+        <div class="col-sm-auto">
+            <div class="container">
+                <div class="responsive-plot" id=myFig style="width:100%;"></div>
+                <div class="responsive-plot" id="myPlot2" style="width:100%;"></div>
+            </div>
+        </div>
     </div>
 
 
-
-<script src="app.js"></script>
+    <script src="app.js"></script>
 
 
 </body>
