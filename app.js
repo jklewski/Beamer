@@ -190,7 +190,7 @@ function mainFunction() {
     }
     //add points loads
     for (let j=0;j<pointLoads.x.length;j++) {
-        var id_end = nodesX.map((x,i) => x > pointLoads.x[j]?i:null).filter(x => x/=null)[0];
+        var id_end = nodesX.map((x,i) => x >= pointLoads.x[j]?i:null).filter(x => x/=null)[0];
         var id_start = id_end-1;
         //horizontal
         x_1 = pointLoads.x[j] - nodesX[id_start]
@@ -279,7 +279,7 @@ function mainFunction() {
               y: 0.01,
               xref: 'x',
               yref: 'y',
-              text: 'P<sub>1</sub>',
+              text: 'P<sub>'+(i+1)+'</sub>',
               font: {
                 size: 25,
                 color: '#ff0000'},
@@ -287,7 +287,7 @@ function mainFunction() {
               showarrow: true,
               arrowhead: 9,
               ax: 0,
-              ay: -75
+              ay: -50-(pointLoads.y[i]*100)
             }
         }
 
