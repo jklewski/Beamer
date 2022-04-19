@@ -64,7 +64,7 @@ function mainFunction() {
     var inLoads = document.getElementsByClassName("loads")
     var inPLoads = document.getElementsByClassName("ploads")
     var inPLoadsx = document.getElementsByClassName("ploadsx")
-    
+
     var L = [];
     var loads = [];
     //GET NODES
@@ -83,23 +83,23 @@ function mainFunction() {
 
     A = document.getElementsByClassName('ploadsx')
     for (let i = 0; i < A.length; i++) {
-    A[i].max = nodesX[nodesX.length-1]
+        A[i].max = nodesX[nodesX.length - 1]
     }
 
-    var pointLoads = {x:[],y:[]};
+    var pointLoads = { x: [], y: [] };
     A = []
     for (let i = 0; i < inPLoads.length; i++) {
         if (inPLoads[i].parentElement.parentElement.parentElement.style.display.includes('block')) {
-            pointLoads.y.push(parseFloat(inPLoads[i].value/100))
+            pointLoads.y.push(parseFloat(inPLoads[i].value / 100))
             pointLoads.x.push(parseFloat(inPLoadsx[i].value))
         }
     }
-        
-   
+
+
 
     //GET P-LOADS
 
-   //var pointLoads = {x:[0.5],y:[0.1]};
+    //var pointLoads = {x:[0.5],y:[0.1]};
 
     //GET END SUPPORT CONDITIONS
     var BC = new Array(nodesX.length).fill(1)
@@ -164,8 +164,8 @@ function mainFunction() {
     var Ks = compile(KeAll)
 
     //round values for perforamnce (small error expected)
-    for (let i = 0; i<Ks.length; i++) {
-        Ks[i] = Ks[i].map(x=> Math.round(x*1000)/1000)
+    for (let i = 0; i < Ks.length; i++) {
+        Ks[i] = Ks[i].map(x => Math.round(x * 10000000) / 10000000)
     }
 
     var u = []
@@ -189,20 +189,20 @@ function mainFunction() {
         }
     }
     //add points loads
-    for (let j=0;j<pointLoads.x.length;j++) {
-        var id_end = nodesX.map((x,i) => x >= pointLoads.x[j]?i:null).filter(x => x/=null)[0];
-        var id_start = id_end-1;
+    for (let j = 0; j < pointLoads.x.length; j++) {
+        var id_end = nodesX.map((x, i) => x >= pointLoads.x[j] ? i : null).filter(x => x /= null)[0];
+        var id_start = id_end - 1;
         //horizontal
         x_1 = pointLoads.x[j] - nodesX[id_start]
-        x_2 = (nodesX[id_end]-nodesX[id_start])-x_1;
-        Li =  x_1+x_2;
-        F_n[2 * id_start] -= pointLoads.y[j]*(3*x_1+x_2)*x_2**2/Li**3 //reaction left (negative)
-        F_n[2 * id_start + 1] -= pointLoads.y[j]*x_2**2*x_1/Li**2//moment left (negative)
-        F_n[2 * id_end] -= pointLoads.y[j]*(3*x_2+x_1)*x_1**2/Li**3 //reaction right (negative)
-        F_n[2 * id_end + 1] += pointLoads.y[j]*x_1**2*x_2/Li**2 //moment right (positive)
+        x_2 = (nodesX[id_end] - nodesX[id_start]) - x_1;
+        Li = x_1 + x_2;
+        F_n[2 * id_start] -= pointLoads.y[j] * (3 * x_1 + x_2) * x_2 ** 2 / Li ** 3 //reaction left (negative)
+        F_n[2 * id_start + 1] -= pointLoads.y[j] * x_2 ** 2 * x_1 / Li ** 2//moment left (negative)
+        F_n[2 * id_end] -= pointLoads.y[j] * (3 * x_2 + x_1) * x_1 ** 2 / Li ** 3 //reaction right (negative)
+        F_n[2 * id_end + 1] += pointLoads.y[j] * x_1 ** 2 * x_2 / Li ** 2 //moment right (positive)
     }
 
-    
+
     //unwrap matrix to system of equations
     eq = [];
     for (let j = 0; j < sz; j++) {
@@ -275,19 +275,20 @@ function mainFunction() {
         ploadAnnotations = [];
         for (let i = 0; i < pointLoads.x.length; i++) {
             ploadAnnotations[i] = {
-              x: pointLoads.x[i],
-              y: 0.01,
-              xref: 'x',
-              yref: 'y',
-              text: 'P<sub>'+(i+1)+'</sub>',
-              font: {
-                size: 25,
-                color: '#ff0000'},
+                x: pointLoads.x[i],
+                y: 0.01,
+                xref: 'x',
+                yref: 'y',
+                text: 'P<sub>' + (i + 1) + '</sub>',
+                font: {
+                    size: 25,
+                    color: '#ff0000'
+                },
                 arrowcolor: '#ff0000',
-              showarrow: true,
-              arrowhead: 9,
-              ax: 0,
-              ay: -50-(pointLoads.y[i]*100)
+                showarrow: true,
+                arrowhead: 9,
+                ax: 0,
+                ay: -50 - (pointLoads.y[i] * 100)
             }
         }
 
@@ -296,10 +297,10 @@ function mainFunction() {
             annotations: ploadAnnotations,
             shapes: shapes,
             xaxis: { scaleanchor: "y", range: [-0.1, totLength + 0.1] },
-            yaxis: { visible: true},
+            yaxis: { visible: true },
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
-            margin: {l:0, b: 0, t: 10 },
+            margin: { l: 0, b: 0, t: 10 },
         }
         var trace1 = {
             x: nodesX,
@@ -324,86 +325,161 @@ function mainFunction() {
         return x
     }
 
-    //get reactions
-    var Rv = [];
-    for (let i = 0; i < nodesX.length; i++) {
-        id = (nodesX.length * 2) + i * 2
-        Rv[i] = sol2[id][1]
-    }
+
 
     //Time to calculate the shear force and moment diagram from reactions and loads!
-    var xRv = nodesX
-    var x = linspace(0, totLength, 1000);
-    var y = linspace(0, 0, 1000); //shear force (y?)
-    //first add all reactions
-    for (let i = 0; i < (Rv.length); i++) {
-        y = x.map((a, j) => a >= xRv[i] ? y[j] + Rv[i] : y[j])
+    x_tot = [];
+    y_tot = [];
+    V_tot = [];
+    M_tot = [];
+    v_tot = [];
+    v_right = [sol2[1][1]];
+
+
+
+    //calculate cumulative reaction force, left to right
+    var Ri = [sol2[sz][1]];
+    for (let i = 1; i < (sz / 2); i++) {
+        Ri[i] = Ri[i - 1] + sol2[sz + i * 2][1]; //right side of beam 1
     }
-    //add all UDL
-    dx = x[2] - x[1];
-    x_start_udl = nodesX.slice(0, nodesX.length - 1) //start of udl
-    x_end_udl = nodesX.slice(1, nodesX.length)
-    var q = loads
-    y_udl = linspace(0, 0, 1000)
-    for (let i = 0; i < x_start_udl.length; i++) {
-        for (let j = 1; j < x.length; j++) {
-            if (x[j] >= x_start_udl[i] && x[j] <= x_end_udl[i]) {
-                y_udl[j] = y_udl[j - 1] - dx * q[i]
-            } else {
-                y_udl[j] = Math.min(y_udl[j], y_udl[j - 1]);
-            }
+
+
+    //calculate node shear force beam-wise from left side by adding up reaction forces and loads
+    //then draw V(x) and integrate to get M(x) and v(x) 
+    var Vi = []
+    for (let i = 0; i < nodesX.length - 1; i++) {
+
+        var M = [];
+        x_start = nodesX[i];
+        x_end = nodesX[i + 1];
+        n_el = 10000;
+        x = linspace(x_start, x_end, n_el)
+        dx = (x_end - x_start) / n_el
+
+
+        //find point loads before reaction
+        //pID = pointLoads.x.map((x, i) => (x > x_start && x <= x_end) ? i : null) 
+        //pID = pID.filter(x => x != null)//IDs
+        pID = pointLoads.x.map((x, i) => (x < x_start) ? i : null)
+        pID = pID.filter(x => x != null)//IDs
+        if (pID.length > 0) {
+            pSumLeft = pID.map(x => pointLoads.y[x]).reduce((curr, prev) => curr + prev)
+        } else {
+            pSumLeft = 0
         }
-    }
-    y_tot = y.map((y, i) => y + y_udl[i])
 
-    //finally add all point loads
-    for (let j = 0; j < pointLoads.x.length; j++) {
-        //from left to right, find all index to change V(x)
-        var id_x = x.map((x,i) => x>pointLoads.x[j]?i:null).filter(x=>x/=null);
-          for (let k=0;k<id_x.length;k++){
-              y_tot[id_x[k]] -= pointLoads.y[j]
-          }
-    }
+        qSumLeft = 0;
+        for (let k = 0; k < i; k++) {
+            qSumLeft += loads[k] * (x_end - x_start);
+        }
+        Vi[i] = Ri[i] - qSumLeft - pSumLeft;
 
-    var M_tot = []
 
-    var M_0 = sol2[sz + 1][1];
-    M_tot[0] = -M_0;
-    for (let i = 1; i < y_tot.length; i++) {
-        M_tot[i] = M_tot[i - 1] + dx * (y_tot[i] + y_tot[i + 1]) / 2
+        //initiate array at support shear force
+        y = new Array(x.length).fill(Vi[i])
+
+        pID = pointLoads.x.map((x, i) => (x >= x_start && x < x_end) ? i : null)
+        pID = pID.filter(x => x != null)//IDs
+        //loop over point loads in segment and adjust array y
+        for (let m = 0; m < pID.length; m++) {
+            y = x.map((n, k) => n >= pointLoads.x[pID[m]] ? y[k] - pointLoads.y[pID[m]] : y[k])
+        }
+
+        //loop over x to add UDL
+        y = y.map((x, u) => x - loads[i] * dx * u)
+        //integrate over shear force to get moment
+        for (let j = 1; j < x.length; j++) {
+            if (i == 0) {
+                M[0] = -sol2[sz + 1][1] //moment at left reaction
+            } else {
+                M[0] = M_tot[M_tot.length - 1] //moment from left side of support
+            }
+            M[j] = M[j - 1] + dx * y[j]
+        }
+        //integrate M twice to get deflection
+        a = [];
+        v = [];
+
+        a = new Array(x.length).fill(null)
+        v = new Array(x.length).fill(null)
+        a[0] = sol2[i * 2 + 1][1]
+        v[0] = sol2[i * 2][1]
+        for (let j = 1; j < x.length; j++) {
+            a[j] = a[j - 1] + dx * M[j]
+            v[j] = v[j - 1] + dx * a[j]
+        }
+
+        x_tot.push(...x);
+        y_tot.push(...y);
+        M_tot.push(...M);
+        v_tot.push(...v);
+        v_right.push(v[v.length - 1])
     }
+    //check if significant error in deflection
 
     ax2 = document.getElementById('myPlot2');
+    //scale factors
+    const k_M = Math.max(...[Math.max(...M_tot), Math.abs(Math.min(...M_tot))])
+    const k_V = Math.max(...[Math.max(...y_tot), Math.abs(Math.min(...y_tot))])
+    const k_v = Math.max(...[Math.max(...v_tot), Math.abs(Math.min(...v_tot))])
+
+    var error = v_right.map((v, i) => Math.abs((v - sol2[i * 2][1])) / k_v).some(x => x > 0.05)
+
+    Math.abs(...M_tot)
     trace = {
-        x: x,
-        y: y_tot,
+        x: x_tot,
+        y: y_tot.map(x => x / k_V),
         mode: 'line',
         fill: 'tozeroy',
-        name: 'Shear force',
+        name: 'Shear force, scale: ' + k_V.toExponential(2),
+    }
+    var trace_M = {
+        x: x_tot,
+        y: M_tot.map(x => x / k_M),
+        mode: 'line',
+        fill: 'tozeroy',
+        name: 'Moment, scale: ' + k_M.toExponential(2),
+    }
+    var trace_v = {
+        x: x_tot,
+        y: v_tot.map(x => x / k_v),
+        mode: 'line',
+        name: 'Deflection, scale: ' + k_v.toExponential(2),
     }
 
-    var trace_M = {
-        x: x,
-        y: M_tot.map(x => x * 5),
-        mode: 'line',
-        fill: 'tozeroy',
-        name: 'Moment',
+    annotations = [{
+        xref: 'paper',
+        yref: 'paper',
+        x: 0.5,
+        xanchor: 'center',
+        y: 0.9,
+        yanchor: 'bottom',
+        text: 'ups... large error detected',
+        showarrow: false,
+        font: { color: 'red', size: 30 },
+    }]
+    if (!error || error) {
+        annotations[0].opacity = 0
     }
+
     layout2 = {
         xaxis: { range: [-0.1, totLength + 0.1], title: "" },
         yaxis: { range: [-1, 1], title: "c(x)" },
         showlegend: true,
         legend: {
-            x: 1,
-            xanchor: 'right',
-            y: 1
+            x: 0,
+            xanchor: 'left',
+            y: -0.22
         },
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
-        margin: {l:0, b: 100, t: 0 },
+        margin: { l: 0, b: 100, t: 0 },
+        annotations: annotations,
     }
-    
-    var data2 = [trace_M, trace]
+
+
+
+    var data2 = [trace_M, trace, trace_v]
     Plotly.newPlot(ax2, data2, layout2)
 
     //write matrix
@@ -412,67 +488,66 @@ function mainFunction() {
     for (let i = 0; i < Ks.length; i++) {
         rowString = Ks[i].map(x => Math.round(x)).toString()
         rowString = rowString.replaceAll(',', '&')
-        if (i<Ks.length) {
-        matrixString = matrixString.concat(rowString, '\\\\')
+        if (i < Ks.length) {
+            matrixString = matrixString.concat(rowString, '\\\\')
         }
     }
-    matrixString = matrixString.concat('\\end{bmatrix}','\\begin{bmatrix}')
+    matrixString = matrixString.concat('\\end{bmatrix}', '\\begin{bmatrix}')
     for (let i = 0; i < Ks.length; i++) {
         if (i % 2 == 0) {
-        rowString = "\\delta_" + (i/2)           
-        } 
+            rowString = "\\delta_" + (i / 2)
+        }
         if (!(i % 2 == 0)) {
-        rowString = "\\phi_" + ((i-1)/2)
-    }
-    if (u_zero.includes(i)) {
-        rowString = '0'
-    }
-    if (i<Ks.length) {
-        matrixString = matrixString.concat(rowString, '\\\\')
-    }
+            rowString = "\\phi_" + ((i - 1) / 2)
+        }
+        if (u_zero.includes(i)) {
+            rowString = '0'
+        }
+        if (i < Ks.length) {
+            matrixString = matrixString.concat(rowString, '\\\\')
+        }
     }
     matrixString = matrixString.concat('\\end{bmatrix} = \\begin{bmatrix}')
-    
+
     //Reactions
     for (let i = 0; i < Ks.length; i++) {
         if (i % 2 == 0) {
-        rowString = "R_{s," + (i/2) +'}'           
-        } 
+            rowString = "R_{s," + (i / 2) + '}'
+        }
         if (!(i % 2 == 0)) {
-        rowString = "M_{s," + ((i-1)/2) + '}'
-    }
-    if (R_zero.includes(i)) {
-        rowString = '0'
-    }
-    if (i<Ks.length) {
-        matrixString = matrixString.concat(rowString, '\\\\')
-    }
+            rowString = "M_{s," + ((i - 1) / 2) + '}'
+        }
+        if (R_zero.includes(i)) {
+            rowString = '0'
+        }
+        if (i < Ks.length) {
+            matrixString = matrixString.concat(rowString, '\\\\')
+        }
     }
     matrixString = matrixString.concat('\\end{bmatrix} + \\begin{bmatrix}')
     //external forces
     for (let i = 0; i < Ks.length; i++) {
-        F_n_str = F_n.map(x => Math.round(x*100)/100)
+        F_n_str = F_n.map(x => Math.round(x * 100) / 100)
         rowString = F_n_str[i].toString() + "\\\\"
-        matrixString = matrixString.concat(rowString)           
+        matrixString = matrixString.concat(rowString)
     }
     matrixString = matrixString.concat('\\end{bmatrix}$$')
 
     p.innerHTML = matrixString
-    MathJax.Hub.Queue(["Typeset", MathJax.Hub,p])
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, p])
 
     window.onresize = function () {
         ax = document.getElementsByClassName("responsive-plot")
-        Plotly.relayout(ax[0], {'xaxis.range': layout.xaxis.range});
-        Plotly.relayout(ax[1], {'xaxis.range': layout2.xaxis.range});
-        
+        Plotly.relayout(ax[0], { 'xaxis.range': layout.xaxis.range });
+        Plotly.relayout(ax[1], { 'xaxis.range': layout2.xaxis.range });
+
         for (let i = 0; i < ax.length; i++) {
             ax[i].style.width = "100%"
             Plotly.Plots.resize(ax[i]);
-            
-                
-            
         }
 
     }
 
 }
+
+
