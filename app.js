@@ -370,7 +370,7 @@ function mainFunction() {
 
         qSumLeft = 0;
         for (let k = 0; k < i; k++) {
-            qSumLeft += loads[k] * (x_end - x_start);
+            qSumLeft += loads[k] * (nodesX[k+1]-nodesX[k]);
         }
         Vi[i] = Ri[i] - qSumLeft - pSumLeft;
 
