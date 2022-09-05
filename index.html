@@ -46,12 +46,7 @@
                 // the locale, per default detected automatically from the browser
                 locale: navigator.language,
                 // the template of the input
-                template: // the template of the input
-                    '<div class="input-group ${groupClass}">' +
-                    '<input type="text" inputmode="decimal" style="text-align: ${textAlign}" class="form-control form-control-text-input"/>' +
-                    '<div class="input-group-prepend"><button style="min-width: ${buttonsWidth}" class="btn btn-decrement ${buttonsClass} btn-minus" type="button">${decrementButton}</button></div>' +
-                    '<div class="input-group-append"><button style="min-width: ${buttonsWidth}" class="btn btn-increment ${buttonsClass} btn-plus" type="button">${incrementButton}</button></div>' +
-                    '</div>'
+
             })
         })
     </script>
@@ -60,7 +55,7 @@
 <body>
     <div class="wrapper">
         <!--<div class="row "> -->
-            <div class="left">
+        <div class="left shadow-lg p-3 mb-5 bg-white rounded">
             <div class="inputs">
                 <div class="input-group pt-3">
                     <div class="input-group-prepend">
@@ -102,12 +97,12 @@
                 <div class="input-group type1" style="display:block;">
                     <div class="row">
                         <div class="col-6">
-                            <input id="L1" data-prefix="L<sub>1</sub>" class="lengths" type="number" value="1" min="0.2"
-                                max="5" step="0.1" data-decimals="1" />
+                            <input id="L1" data-prefix="L<sub>1</sub>" class="lengths form-control-sm" type="number"
+                                value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
                         </div>
                         <div class="col-6">
-                            <input id="q1" data-prefix="q<sub>1</sub>" class="loads" type="number" value="50" min="0"
-                                max="100" step="5" />
+                            <input id="q1" data-prefix="q<sub>1</sub>" class="loads form-control-sm" type="number"
+                                value="50" min="0" max="100" step="5" />
                         </div>
                     </div>
                 </div>
@@ -115,48 +110,48 @@
                 <div class="input-group type1" style="display:block;">
                     <div class="row">
                         <div class="col-6">
-                            <input id="L2" data-prefix="L<sub>2</sub>" class="lengths" type="number" value="1" min="0.2"
-                                max="5" step="0.1" data-decimals="1" />
+                            <input id="L2" data-prefix="L<sub>2</sub>" class="lengths form-control-sm" type="number"
+                                value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
                         </div>
                         <div class="col-6">
-                            <input id="q2" data-prefix="q<sub>2</sub>" class="loads" type="number" value="0" min="0"
-                                max="100" step="5" />
+                            <input id="q2" data-prefix="q<sub>2</sub>" class="loads form-control-sm" type="number"
+                                value="0" min="0" max="100" step="5" />
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group type1 " style="display:block;">
+                    <div class="row">
+                        <div class="col-6">
+                            <input id="L3" data-prefix="L<sub>3</sub>" class="lengths form-control-sm" type="number"
+                                value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
+                        </div>
+                        <div class="col-6">
+                            <input id="q3" data-prefix="q<sub>3</sub>" class="loads form-control-sm" type="number"
+                                value="0" min="0" max="100" step="5" />
                         </div>
                     </div>
                 </div>
                 <div class="input-group type1" style="display:block;">
                     <div class="row">
                         <div class="col-6">
-                            <input id="L3" data-prefix="L<sub>3</sub>" class="lengths" type="number" value="1" min="0.2"
-                                max="5" step="0.1" data-decimals="1" />
+                            <input id="L4" data-prefix="L<sub>4</sub>" class="lengths form-control-sm" type="number"
+                                value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
                         </div>
                         <div class="col-6">
-                            <input id="q3" data-prefix="q<sub>3</sub>" class="loads" type="number" value="0" min="0"
-                                max="100" step="5" />
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group type1" style="display:block;">
-                    <div class="row">
-                        <div class="col-6">
-                            <input id="L4" data-prefix="L<sub>4</sub>" class="lengths" type="number" value="1" min="0.2"
-                                max="5" step="0.1" data-decimals="1" />
-                        </div>
-                        <div class="col-6">
-                            <input id="q4" data-prefix="q<sub>4</sub>" class="loads" type="number" value="0" min="0"
-                                max="100" step="5" />
+                            <input id="q4" data-prefix="q<sub>4</sub>" class="loads form-control-sm" type="number"
+                                value="0" min="0" max="100" step="5" />
                         </div>
                     </div>
                 </div>
                 <div class="input-group type1" style="display:block;">
                     <div class="row">
                         <div class="col-6">
-                            <input id="L5" data-prefix="L<sub>5</sub>" class="lengths" type="number" value="1" min="0.2"
-                                max="5" step="0.1" data-decimals="1" />
+                            <input id="L5" data-prefix="L<sub>5</sub>" class="lengths form-control-sm" type="number"
+                                value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
                         </div>
                         <div class="col-6">
-                            <input id="q5" data-prefix="q<sub>5</sub>" class="loads" type="number" value="0" min="0"
-                                max="100" step="5" />
+                            <input id="q5" data-prefix="q<sub>5</sub>" class="loads form-control-sm" type="number"
+                                value="0" min="0" max="100" step="5" />
                         </div>
                     </div>
                 </div>
@@ -176,68 +171,76 @@
                 <div class="input-group type2" style="display:block;">
                     <div class="row">
                         <div class="col-6">
-                            <input id="P1" data-prefix="P<sub>1</sub>" class="ploads" type="number" value="10" min="0"
-                                max="100" step="5" />
+                            <input id="P1" data-prefix="P<sub>1</sub>" class="ploads form-control-sm" type="number"
+                                value="10" min="0" max="100" step="5" />
                         </div>
                         <div class="col-6">
-                            <input id="P1" data-prefix="x<sub>1</sub>" class="ploadsx" type="number" value="0.5"
-                                min="0.1" max="1" step="0.1" data-decimals="1" />
+                            <input id="P1" data-prefix="x<sub>1</sub>" class="ploadsx form-control-sm" type="number"
+                                value="0.5" min="0.1" max="1" step="0.1" data-decimals="1" />
                         </div>
                     </div>
                 </div>
                 <div class="input-group type2" style="display:block;">
                     <div class="row">
-                        <div class="col-6">
-                            <input id="P2" data-prefix="P<sub>2</sub>" class="ploads" type="number" value="10" min="0"
-                                max="100" step="5" />
+                        <div class="col-6 ">
+                            <input id="P2" data-prefix="P<sub>2</sub>" class="ploads form-control-sm" type="number"
+                                value="10" min="0" max="100" step="5" />
                         </div>
                         <div class="col-6">
-                            <input id="P2" data-prefix="x<sub>2</sub>" class="ploadsx" type="number" value="1.5"
-                                min="0.1" max="1" step="0.1" data-decimals="1" />
+                            <input id="P2" data-prefix="x<sub>2</sub>" class="ploadsx form-control-sm" type="number"
+                                value="1.5" min="0.1" max="1" step="0.1" data-decimals="1" />
                         </div>
                     </div>
                 </div>
                 <div class="input-group type2" style="display:none;">
                     <div class="row">
                         <div class="col-6">
-                            <input id="P2" data-prefix="P<sub>3</sub>" class="ploads" type="number" value="10" min="0"
-                                max="100" step="5" />
+                            <input id="P2" data-prefix="P<sub>3</sub>" class="ploads form-control-sm" type="number"
+                                value="10" min="0" max="100" step="5" />
                         </div>
                         <div class="col-6">
-                            <input id="P3" data-prefix="x<sub>3</sub>" class="ploadsx" type="number" value="0.7"
-                                min="0.1" max="1" step="0.1" data-decimals="1" />
+                            <input id="P3" data-prefix="x<sub>3</sub>" class="ploadsx form-control-sm" type="number"
+                                value="0.7" min="0.1" max="1" step="0.1" data-decimals="1" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Button trigger modal -->
+                <div id="buttonDiv">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    Stiffness Matrix
+                </button>
+                </div>
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Stiffness matrix</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p id="modal-body-text"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
 
-
-
-            <div class="btn">
-                <button class="open-btn">Show K-matrix</button>
             </div>
-            <div class="popup">
-                <div class="popup-overlay"></div>
-                <div class="main-popup">
-                    <div class="popup-content">
-                        <span class="close-btn">&times;</span>
-                        <p id="KMatrix"></p>
-                    </div>
-                </div>
-            </div>
-            <div class="footnote">
-                <p>jonas@niklewski.com</p>
-            </div>
-        </div>
         </div>
         <div class="right">
-            <div class="container-fluid">
-                <div class="responsive-plot" id=myFig style="width:100%;"></div>
-                <div class="responsive-plot" id="myPlot2" style="width:100%;"></div>
+            <div id="plotarea" class="shadow-lg p-3 mb-5 bg-body rounded">
+                <div id="myFig"></div>
+                <div id="myPlot2"></div>
             </div>
-        <!--</div>-->
+        </div>
     </div>
-
 
     <script src="app.js"></script>
 

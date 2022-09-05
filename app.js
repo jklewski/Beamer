@@ -1,31 +1,3 @@
-//sidebar
-const open_btn = document.querySelector(".open-btn")
-const close_btn = document.querySelector(".close-btn")
-const popup = document.querySelector(".popup")
-const main_popup = document.querySelector(".main-popup")
-
-open_btn.addEventListener("click", () => {
-    popup.style.display = 'flex';
-    main_popup.style.cssText = 'animation: slide-in .5s ease; animation-fill-mode: forwards'
-}
-)
-
-close_btn.addEventListener('click', () => {
-    main_popup.style.cssText = 'animation: slide-out .5s ease; animation-fill-mode: forwards'
-    setTimeout(() => {
-        popup.style.display = 'none';
-    }, 500);
-})
-
-window.addEventListener('click', (e) => {
-    if (e.target == document.querySelector('.popup-overlay')) {
-        main_popup.style.cssText = 'animation: slide-out .5s ease; animation-fill-mode: forwards'
-        setTimeout(() => {
-            popup.style.display = 'none';
-        }, 500);
-    }
-})
-
 nbeamsSelector = document.querySelector("#beamSelector")
 nbeamsSelector.addEventListener("change", function () {
     inputs = document.getElementsByClassName("type1")
@@ -251,9 +223,10 @@ function mainFunction() {
             {
                 type: 'path',
                 path: path[j],
-                fillcolor: 'rgba(255, 140, 184, 0.5)',
+                fillcolor: 'rgba(200, 200, 200, 0.5)',
                 line: {
-                    color: 'rgb(255, 140, 184)'
+                    color: 'rgb(0, 0, 0)',
+                    width: 0.5,
                 }
             }
 
@@ -266,9 +239,9 @@ function mainFunction() {
                 x0: nodesX[i],
                 x1: nodesX[i + 1],
                 y0: 0.1,
-                y1: loads[i] / 2 + 0.1,
-                fillcolor: 'rgba(0,0.5,0,0.5)',
-                line: { width: 1 },
+                y1: loads[i] / 3 + 0.1,
+                fillcolor: 'rgba(0,0.5,0,0.4)',
+                line: { width: 0 },
             }
         }
 
@@ -306,12 +279,13 @@ function mainFunction() {
             x: nodesX,
             y: new Array(nodesX.length).fill(0),
             line: { color: 'rgb(0,0,0)', width: 5 },
-            marker: { size: 10, line: { color: 'rgb(255,0,0)', width: 2, fillcolor: 'rgb(255,255,255)' } }
+            marker: { size: 6, line: { color: 'rgb(0,0,0)', width: 2, fillcolor: 'rgb(255,255,255)' } }
         };
         var data = [trace1]
         //plotly
         var myAx = document.getElementById("myFig")
-        Plotly.newPlot(myAx, data, layout)
+         
+        Plotly.newPlot(myAx, data, layout,{responsive: true})
     }
     geoDraw(nodesX, loads, BC)
 
@@ -464,13 +438,23 @@ function mainFunction() {
 
     layout2 = {
         xaxis: { range: [-0.1, totLength + 0.1], title: "" },
-        yaxis: { range: [-1, 1], title: "c(x)" },
+        yaxis: { range: [-1, 1], title: "c(x)"},
         showlegend: true,
         legend: {
-            x: 0,
-            xanchor: 'left',
-            y: -0.22
-        },
+            x: 0.95,
+            y: 0.05,
+            xanchor:'right',
+            yanchor:'bottom',
+            traceorder: 'normal',
+            font: {
+              family: 'sans-serif',
+              size: 12,
+              color: '#000'
+            },
+            bgcolor: '#E2E2E2',
+            bordercolor: '#000000',
+            borderwidth: 1
+          },
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
         margin: { l: 0, b: 100, t: 0 },
@@ -478,12 +462,12 @@ function mainFunction() {
     }
 
 
-
+    var config = {responsive: true} 
     var data2 = [trace_M, trace, trace_v]
-    Plotly.newPlot(ax2, data2, layout2)
+    Plotly.newPlot(ax2, data2, layout2,config)
 
     //write matrix
-    var p = document.getElementById('KMatrix')
+    var p = document.getElementById('modal-body-text')
     matrixString = '$$EI\\begin{bmatrix}';
     for (let i = 0; i < Ks.length; i++) {
         rowString = Ks[i].map(x => Math.round(x)).toString()
@@ -532,21 +516,10 @@ function mainFunction() {
         matrixString = matrixString.concat(rowString)
     }
     matrixString = matrixString.concat('\\end{bmatrix}$$')
-
     p.innerHTML = matrixString
     MathJax.Hub.Queue(["Typeset", MathJax.Hub, p])
 
-    window.onresize = function () {
-        ax = document.getElementsByClassName("responsive-plot")
-        Plotly.relayout(ax[0], { 'xaxis.range': layout.xaxis.range });
-        Plotly.relayout(ax[1], { 'xaxis.range': layout2.xaxis.range });
 
-        for (let i = 0; i < ax.length; i++) {
-            ax[i].style.width = "100%"
-            Plotly.Plots.resize(ax[i]);
-        }
-
-    }
 
 }
 
