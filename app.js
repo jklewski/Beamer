@@ -269,11 +269,12 @@ function mainFunction() {
         layout = {
             annotations: ploadAnnotations,
             shapes: shapes,
-            xaxis: { scaleanchor: "y", range: [-0.1, totLength + 0.1] },
-            yaxis: { visible: true },
+            xaxis: { scaleanchor: "y", range: [-0.1, totLength + 0.1], fixedrange: true, tickvals:nodesX,zeroline:false },
+            yaxis: { visible: true,showgrid:false},
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
             margin: { l: 0, b: 0, t: 10 },
+            height:300,
         }
         var trace1 = {
             x: nodesX,
@@ -285,7 +286,7 @@ function mainFunction() {
         //plotly
         var myAx = document.getElementById("myFig")
          
-        Plotly.newPlot(myAx, data, layout,{responsive: true})
+        Plotly.newPlot(myAx, data, layout,{responsive: true, displayModeBar: false})
     }
     geoDraw(nodesX, loads, BC)
 
@@ -437,32 +438,28 @@ function mainFunction() {
     }
 
     layout2 = {
-        xaxis: { range: [-0.1, totLength + 0.1], title: "" },
-        yaxis: { range: [-1, 1], title: "c(x)"},
+        xaxis: { range: [-0.1, totLength + 0.1], title: "", fixedrange: true,tickvals:nodesX,zeroline:false},
+        yaxis: { title: "c(x)",fixedrange: true,showgrid:false},
+        height:200,
         showlegend: true,
         legend: {
-            x: 0.95,
-            y: 0.05,
-            xanchor:'right',
-            yanchor:'bottom',
-            traceorder: 'normal',
+            orientation: "h",
             font: {
               family: 'sans-serif',
               size: 12,
               color: '#000'
             },
-            bgcolor: '#E2E2E2',
-            bordercolor: '#000000',
-            borderwidth: 1
           },
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
-        margin: { l: 0, b: 100, t: 0 },
+        margin: { l: 0, b: 50, t: 0 },
         annotations: annotations,
+        grid: {rows:100},
+        autosize:true
     }
 
 
-    var config = {responsive: true} 
+    var config = {responsive: true, displayModeBar:false} 
     var data2 = [trace_M, trace, trace_v]
     Plotly.newPlot(ax2, data2, layout2,config)
 

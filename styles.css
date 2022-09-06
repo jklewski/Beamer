@@ -14,13 +14,14 @@ p {
 .left {
     margin:10px;
     left:0;
-    height:90%;
+    height:600px;
     width:380px;
     background-color:rgb(220,220,220)
 }
 
 #buttonDiv {
-margin:100px
+margin-left:100px;
+margin-top:20px;
 }
 .right {
     margin: 10px;
@@ -32,14 +33,13 @@ margin:100px
 .inputs {
     margin-right:5px;
     margin-left: 5px;
-
 }
 
 #plotarea {
     margin-left: 10px;
     margin-right: 10px;
     height: auto;
-    width: 100%;
+    width: auto;
 }
 
 .input-group{
