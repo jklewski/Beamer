@@ -1,251 +1,257 @@
-nbeamsSelector = document.querySelector("#beamSelector")
+// Beam selector event listener
+const nbeamsSelector = document.querySelector("#beamSelector");
 nbeamsSelector.addEventListener("change", function () {
-    inputs = document.getElementsByClassName("type1")
-    nbeams = parseInt(nbeamsSelector.value);
+    const inputs = document.getElementsByClassName("type1");
+    const nbeams = parseInt(nbeamsSelector.value);
     for (let i = 0; i < inputs.length; i++) {
-        if (i < nbeams) {
-            inputs[i].style.display = 'block'
-        } else if (i >= nbeams) {
-            inputs[i].style.display = 'none'
-        }
+        inputs[i].style.display = i < nbeams ? 'grid' : 'none';
     }
-})
+    mainFunction();
+});
 
-ploadsSelector = document.getElementById("ploadSelector")
+// Point loads selector event listener
+const ploadsSelector = document.getElementById("ploadSelector");
 ploadsSelector.addEventListener("change", function () {
-    inputs = document.getElementsByClassName("type2")
-    npoints = parseInt(ploadSelector.value);
+    const inputs = document.getElementsByClassName("type2");
+    const npoints = parseInt(ploadsSelector.value);
     for (let i = 0; i < inputs.length; i++) {
-        if (i < npoints) {
-            inputs[i].style.display = 'block'
-        } else if (i >= npoints) {
-            inputs[i].style.display = 'none'
-        }
+        inputs[i].style.display = i < npoints ? 'grid' : 'none';
     }
-})
+    mainFunction();
+});
 
-$(".lengths, .loads, .ploads,.ploadsx,.custom-select").change(mainFunction)
+// Attach change listeners to all inputs
+$(".lengths, .loads, .ploads, .ploadsx, .custom-select").change(mainFunction);
 
-//run mainfunction on startup
-mainFunction()
+// Run main function on startup
+mainFunction();
 
 function mainFunction() {
+    // Get visible counts from selectors
+    const nbeams = parseInt(nbeamsSelector.value);
+    const npoints = parseInt(ploadsSelector.value);
 
-    //get inputs
-    var lengths = document.getElementsByClassName("lengths")
-    var inLoads = document.getElementsByClassName("loads")
-    var inPLoads = document.getElementsByClassName("ploads")
-    var inPLoadsx = document.getElementsByClassName("ploadsx")
-
-    var L = [];
-    var loads = [];
-    //GET NODES
-    for (let i = 0; i < lengths.length; i++) {
-        if (lengths[i].parentElement.parentElement.parentElement.style.display.includes('block')) {
-            L.push(parseFloat(lengths[i].value))
-        }
-        if (inLoads[i].parentElement.parentElement.parentElement.style.display.includes('block')) {
-            loads.push(parseFloat(inLoads[i].value) / 100)
-        }
+    // Collect beam lengths and loads using IDs
+    const L = [];
+    const loads = [];
+    for (let i = 1; i <= nbeams; i++) {
+        L.push(parseFloat(document.getElementById('L' + i).value));
+        loads.push(parseFloat(document.getElementById('q' + i).value) / 100);
     }
-    var nodesX = [0]
+
+    // Calculate node positions
+    const nodesX = [0];
     for (let i = 0; i < L.length; i++) {
-        nodesX[i + 1] = nodesX[i] + L[i]
+        nodesX[i + 1] = nodesX[i] + L[i];
     }
 
-    A = document.getElementsByClassName('ploadsx')
-    for (let i = 0; i < A.length; i++) {
-        A[i].max = nodesX[nodesX.length - 1]
+    // Update max value for point load positions
+    const totalLength = nodesX[nodesX.length - 1];
+    for (let i = 1; i <= 3; i++) {
+        document.getElementById('x' + i).max = totalLength;
     }
 
-    var pointLoads = { x: [], y: [] };
-    A = []
-    for (let i = 0; i < inPLoads.length; i++) {
-        if (inPLoads[i].parentElement.parentElement.parentElement.style.display.includes('block')) {
-            pointLoads.y.push(parseFloat(inPLoads[i].value / 100))
-            pointLoads.x.push(parseFloat(inPLoadsx[i].value))
-        }
+    // Collect point loads using IDs
+    const pointLoads = { x: [], y: [] };
+    for (let i = 1; i <= npoints; i++) {
+        pointLoads.y.push(parseFloat(document.getElementById('P' + i).value) / 100);
+        pointLoads.x.push(parseFloat(document.getElementById('x' + i).value));
     }
 
+    // Get boundary conditions
+    const BC = new Array(nodesX.length).fill(1);
+    BC[0] = parseInt(document.getElementById('LeftSupportCondition').value);
+    BC[BC.length - 1] = parseInt(document.getElementById('RightSupportCondition').value);
 
-
-    //GET P-LOADS
-
-    //var pointLoads = {x:[0.5],y:[0.1]};
-
-    //GET END SUPPORT CONDITIONS
-    var BC = new Array(nodesX.length).fill(1)
-    BC[0] = parseInt(document.getElementById('LeftSupportCondition').value)
-    BC[BC.length - 1] = parseInt(document.getElementById('RightSupportCondition').value)
-
-    //calculate length of segments & total length
-    var L = [];
+    // Calculate segment lengths and total length
+    const segmentLengths = [];
     for (let j = 0; j < nodesX.length - 1; j++) {
-        L[j] = nodesX[j + 1] - nodesX[j]
+        segmentLengths[j] = nodesX[j + 1] - nodesX[j];
     }
-    var totLength = L.reduce((current, previous) => current + previous);
+    const totLength = segmentLengths.reduce((curr, prev) => curr + prev, 0);
 
-    var u_zero = [];
-    var R_zero = [];
-    //loop over nodes to get BCs
+    // Determine constrained DOFs and zero reactions
+    const u_zero = [];
+    const R_zero = [];
+
     for (let i = 0; i < BC.length; i++) {
-        if (BC[i] == 0) {
-            R_zero.push(i * 2) //reaction vertical
-            R_zero.push(i * 2 + 1) //reaction moment
-        } else if (BC[i] == 1) {
-            u_zero.push(i * 2) //disp vertical
-            R_zero.push(i * 2 + 1) //reaction moment
-        } else if (BC[i] == 2) {
-            u_zero.push(i * 2) //disp vertical
-            u_zero.push(i * 2 + 1) //disp rotation
+        if (BC[i] === 0) {
+            // Free: both reactions are zero
+            R_zero.push(i * 2);
+            R_zero.push(i * 2 + 1);
+        } else if (BC[i] === 1) {
+            // Pinned: vertical displacement is zero, moment reaction is zero
+            u_zero.push(i * 2);
+            R_zero.push(i * 2 + 1);
+        } else if (BC[i] === 2) {
+            // Rigid: both displacements are zero
+            u_zero.push(i * 2);
+            u_zero.push(i * 2 + 1);
         }
     }
-    geoDraw(nodesX, loads, BC)
 
+    // Draw geometry first
+    geoDraw(nodesX, loads, BC, pointLoads, totLength);
 
-    var KeAll = [];
+    // Build element stiffness matrices
+    const KeAll = [];
     for (let i = 0; i < nodesX.length - 1; i++) {
+        const Li = segmentLengths[i];
+        const Li3 = Li * Li * Li;
+        const Li2 = Li * Li;
+
         KeAll[i] = [
-            [12, 6 * L[i], -12, 6 * L[i]].map(x => x / L[i] ** 3),
-            [6 * L[i], 4 * L[i] ** 2, -6 * L[i], 2 * L[i] ** 2].map(x => x / L[i] ** 3),
-            [-12, -6 * L[i], 12, -6 * L[i]].map(x => x / L[i] ** 3),
-            [6 * L[i], 2 * L[i] ** 2, -6 * L[i], 4 * L[i] ** 2].map(x => x / L[i] ** 3)
+            [12 / Li3, 6 * Li / Li3, -12 / Li3, 6 * Li / Li3],
+            [6 * Li / Li3, 4 * Li2 / Li3, -6 * Li / Li3, 2 * Li2 / Li3],
+            [-12 / Li3, -6 * Li / Li3, 12 / Li3, -6 * Li / Li3],
+            [6 * Li / Li3, 2 * Li2 / Li3, -6 * Li / Li3, 4 * Li2 / Li3]
         ];
     }
 
+    // Assemble global stiffness matrix
     function compile(KeAll) {
-        var Ks = [];
-        sz = 2 + KeAll.length * 2;
-        for (let i = 0; i < sz; i++) {
-            Ks[i] = new Array(sz).fill(0);
-        }
+        const sz = 2 + KeAll.length * 2;
+        const Ks = Array.from({ length: sz }, () => new Array(sz).fill(0));
 
         for (let i = 0; i < KeAll.length; i++) {
-            id_r = i * 2;
-            id_c = i * 2;
+            const idx = i * 2;
             for (let j = 0; j < 4; j++) {
-                Ks[id_r + j][id_c + 0] = Ks[id_r + j][id_c + 0] + KeAll[i][j][0]
-                Ks[id_r + j][id_c + 1] = Ks[id_r + j][id_c + 1] + KeAll[i][j][1]
-                Ks[id_r + j][id_c + 2] = Ks[id_r + j][id_c + 2] + KeAll[i][j][2]
-                Ks[id_r + j][id_c + 3] = Ks[id_r + j][id_c + 3] + KeAll[i][j][3]
+                for (let k = 0; k < 4; k++) {
+                    Ks[idx + j][idx + k] += KeAll[i][j][k];
+                }
             }
         }
-        return Ks
+        return Ks;
     }
 
-    var Ks = compile(KeAll)
+    let Ks = compile(KeAll);
+    const sz = Ks.length;
 
-    //round values for perforamnce (small error expected)
-    for (let i = 0; i < Ks.length; i++) {
-        Ks[i] = Ks[i].map(x => Math.round(x * 10000000) / 10000000)
+    // Round values for numerical stability
+    for (let i = 0; i < sz; i++) {
+        Ks[i] = Ks[i].map(x => Math.round(x * 10000000) / 10000000);
     }
 
-    var u = []
-    var R = []
-    for (let i = 0; i < Ks.length; i++) {
-        u[i] = 'x' + (i + 1)
-        R[i] = 'y' + (i + 1)
+    // Create symbolic variables
+    const u = [];
+    const R = [];
+    for (let i = 0; i < sz; i++) {
+        u[i] = 'x' + (i + 1);
+        R[i] = 'y' + (i + 1);
     }
 
-    var F_n = [];
+    // Calculate equivalent nodal forces from distributed loads
+    const F_n = [];
     for (let i = 0; i < nodesX.length; i++) {
-        if (i == 0) {
-            F_n[2 * i] = -loads[i] * L[0] / 2;
-            F_n[2 * i + 1] = -loads[i] * L[0] ** 2 / 12;
-        } else if (i == (nodesX.length - 1)) {
-            F_n[i * 2] = -loads[i - 1] * L[i - 1] / 2;
-            F_n[i * 2 + 1] = loads[i - 1] * L[i - 1] ** 2 / 12;
+        if (i === 0) {
+            F_n[2 * i] = -loads[i] * segmentLengths[0] / 2;
+            F_n[2 * i + 1] = -loads[i] * segmentLengths[0] ** 2 / 12;
+        } else if (i === nodesX.length - 1) {
+            F_n[i * 2] = -loads[i - 1] * segmentLengths[i - 1] / 2;
+            F_n[i * 2 + 1] = loads[i - 1] * segmentLengths[i - 1] ** 2 / 12;
         } else {
-            F_n[i * 2] = -loads[i - 1] * L[i - 1] / 2 - loads[i] * L[i] / 2;
-            F_n[i * 2 + 1] = loads[i - 1] * L[i - 1] ** 2 / 12 - loads[i] * L[i] ** 2 / 12;
+            F_n[i * 2] = -loads[i - 1] * segmentLengths[i - 1] / 2 - loads[i] * segmentLengths[i] / 2;
+            F_n[i * 2 + 1] = loads[i - 1] * segmentLengths[i - 1] ** 2 / 12 - loads[i] * segmentLengths[i] ** 2 / 12;
         }
     }
-    //add points loads
+
+    // Add point load contributions to nodal forces
     for (let j = 0; j < pointLoads.x.length; j++) {
-        var id_end = nodesX.map((x, i) => x >= pointLoads.x[j] ? i : null).filter(x => x /= null)[0];
-        var id_start = id_end - 1;
-        //horizontal
-        x_1 = pointLoads.x[j] - nodesX[id_start]
-        x_2 = (nodesX[id_end] - nodesX[id_start]) - x_1;
-        Li = x_1 + x_2;
-        F_n[2 * id_start] -= pointLoads.y[j] * (3 * x_1 + x_2) * x_2 ** 2 / Li ** 3 //reaction left (negative)
-        F_n[2 * id_start + 1] -= pointLoads.y[j] * x_2 ** 2 * x_1 / Li ** 2//moment left (negative)
-        F_n[2 * id_end] -= pointLoads.y[j] * (3 * x_2 + x_1) * x_1 ** 2 / Li ** 3 //reaction right (negative)
-        F_n[2 * id_end + 1] += pointLoads.y[j] * x_1 ** 2 * x_2 / Li ** 2 //moment right (positive)
+        const id_end = nodesX.map((x, i) => x >= pointLoads.x[j] ? i : null).filter(x => x !== null)[0];
+        const id_start = id_end - 1;
+
+        const x_1 = pointLoads.x[j] - nodesX[id_start];
+        const x_2 = nodesX[id_end] - nodesX[id_start] - x_1;
+        const Li = x_1 + x_2;
+        const Li2 = Li * Li;
+        const Li3 = Li * Li * Li;
+
+        F_n[2 * id_start] -= pointLoads.y[j] * (3 * x_1 + x_2) * x_2 * x_2 / Li3;
+        F_n[2 * id_start + 1] -= pointLoads.y[j] * x_2 * x_2 * x_1 / Li2;
+        F_n[2 * id_end] -= pointLoads.y[j] * (3 * x_2 + x_1) * x_1 * x_1 / Li3;
+        F_n[2 * id_end + 1] += pointLoads.y[j] * x_1 * x_1 * x_2 / Li2;
     }
 
-
-    //unwrap matrix to system of equations
-    eq = [];
+    // Build system of equations
+    const eq = [];
     for (let j = 0; j < sz; j++) {
-        eq.push(
-            Ks[j].reduce((x, y, i) =>
-                x.toString() + '+' + y.toString() + '*' + u[i],
-                R[j] + '+' + F_n[j] + '=')
-        )
+        let eqStr = R[j] + '+' + F_n[j] + '=';
+        for (let i = 0; i < sz; i++) {
+            eqStr += '+' + Ks[j][i] + '*' + u[i];
+        }
+        eq.push(eqStr);
     }
 
-    //add boundary conditions
+    // Add boundary conditions
     for (let i = 0; i < u_zero.length; i++) {
-        eq.push(u[u_zero[i]] + '= 0')
+        eq.push(u[u_zero[i]] + '=0');
     }
     for (let i = 0; i < R_zero.length; i++) {
-        eq.push(R[R_zero[i]] + '= 0')
+        eq.push(R[R_zero[i]] + '=0');
     }
 
-    //solve system of linear equations with nerdamer library
-    var sol2 = nerdamer.solveEquations(eq,
-        [...u, ...R]);
+    // Solve system using Nerdamer
+    const sol2 = nerdamer.solveEquations(eq, [...u, ...R]);
     console.log(sol2.toString());
 
-    function geoDraw(nodesX, loads, BC) {
+    // Helper function for linspace
+    function linspace(min, max, n) {
+        const nel = n - 1;
+        const step = (max - min) / nel;
+        return Array.from({ length: n }, (_, i) => min + i * step);
+    }
 
-        var path = [];
+    // Draw geometry
+    function geoDraw(nodesX, loads, BC, pointLoads, totLength) {
+        // Scale factor for supports - keeps them visually constant size
+        const s = totLength * 0.02; // Support size scales with total length
+        const margin = totLength * 0.02; // Margin for axis range
+
+        const path = [];
         for (let j = 0; j < nodesX.length; j++) {
-            x = nodesX[j]
-            if (BC[j] == 1) { //pinned (triangle)
-                path[j] = 'M' + x + ',0L' + (x + 0.1) + ',-0.1L' + (x - 0.1) + ',-0.1 Z'
-            } else if (BC[j] == 2) { //rigid (rectangle)
-                if ((j + 1) < nodesX.length) {
-                    path[j] = 'M' + x + ',0.1L' + x + ',-0.1L' + (x - 0.1) + ',-0.1L' + (x - 0.1) + ',0.1 Z'
+            const x = nodesX[j];
+            if (BC[j] === 1) {
+                // Pinned (triangle)
+                path[j] = 'M' + x + ',0L' + (x + s) + ',-' + s + 'L' + (x - s) + ',-' + s + ' Z';
+            } else if (BC[j] === 2) {
+                // Rigid (rectangle)
+                if (j + 1 < nodesX.length) {
+                    path[j] = 'M' + x + ',' + s + 'L' + x + ',-' + s + 'L' + (x - s) + ',-' + s + 'L' + (x - s) + ',' + s + ' Z';
+                } else {
+                    path[j] = 'M' + x + ',' + s + 'L' + x + ',-' + s + 'L' + (x + s) + ',-' + s + 'L' + (x + s) + ',' + s + ' Z';
                 }
-                else {
-                    path[j] = 'M' + x + ',0.1L' + x + ',-0.1L' + (x + 0.1) + ',-0.1L' + (x + 0.1) + ',0.1 Z'
-                }
-            } else if (BC[j] == 0) {
-                path[j] = 'M' + x + ',0L0,0 Z'
+            } else if (BC[j] === 0) {
+                // Free
+                path[j] = 'M' + x + ',0L0,0 Z';
             }
         }
 
-        var shapes = [];
+        const shapes = [];
         for (let j = 0; j < nodesX.length; j++) {
-            shapes[j] =
-            {
+            shapes[j] = {
                 type: 'path',
                 path: path[j],
-                fillcolor: 'rgba(200, 200, 200, 0.5)',
-                line: {
-                    color: 'rgb(0, 0, 0)',
-                    width: 0.5,
-                }
-            }
-
+                fillcolor: 'rgba(148, 163, 184, 0.5)',
+                line: { color: 'rgb(71, 85, 105)', width: 1 }
+            };
         }
-        //plot UDL loads
-        var loadShapes = [];
+
+        // UDL load rectangles - scale height with total length
+        const loadShapes = [];
         for (let i = 0; i < nodesX.length - 1; i++) {
             loadShapes[i] = {
                 type: 'rect',
                 x0: nodesX[i],
                 x1: nodesX[i + 1],
-                y0: 0.1,
-                y1: loads[i] / 3 + 0.1,
-                fillcolor: 'rgba(0,0.5,0,0.4)',
-                line: { width: 0 },
-            }
+                y0: s,
+                y1: loads[i] * totLength * 0.1 + s,
+                fillcolor: 'rgba(34, 197, 94, 0.4)',
+                line: { width: 0 }
+            };
         }
 
-        ploadAnnotations = [];
+        // Point load annotations
+        const ploadAnnotations = [];
         for (let i = 0; i < pointLoads.x.length; i++) {
             ploadAnnotations[i] = {
                 x: pointLoads.x[i],
@@ -253,176 +259,171 @@ function mainFunction() {
                 xref: 'x',
                 yref: 'y',
                 text: 'P<sub>' + (i + 1) + '</sub>',
-                font: {
-                    size: 25,
-                    color: '#ff0000'
-                },
-                arrowcolor: '#ff0000',
+                font: { size: 20, color: '#dc2626' },
+                arrowcolor: '#dc2626',
                 showarrow: true,
                 arrowhead: 9,
                 ax: 0,
                 ay: -50 - (pointLoads.y[i] * 100)
-            }
+            };
         }
 
-        shapes = [...shapes, ...loadShapes]
-        layout = {
+        const allShapes = [...shapes, ...loadShapes];
+
+        const layout = {
             annotations: ploadAnnotations,
-            shapes: shapes,
-            xaxis: { scaleanchor: "y", range: [-0.1, totLength + 0.1], fixedrange: true, tickvals:nodesX,zeroline:false },
-            yaxis: { visible: true,showgrid:false},
+            shapes: allShapes,
+            xaxis: {
+                scaleanchor: "y",
+                range: [-margin, totLength + margin],
+                fixedrange: true,
+                tickvals: nodesX,
+                zeroline: false,
+                gridcolor: 'rgba(148, 163, 184, 0.2)'
+            },
+            yaxis: {
+                visible: true,
+                showgrid: false,
+                fixedrange: true
+            },
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
-            margin: { l: 0, b: 0, t: 10 },
-            height:300,
-        }
-        var trace1 = {
+            margin: { l: 0, b: 0, t: 10, r: 0 },
+            height: 280
+        };
+
+        const trace1 = {
             x: nodesX,
             y: new Array(nodesX.length).fill(0),
-            line: { color: 'rgb(0,0,0)', width: 5 },
-            marker: { size: 6, line: { color: 'rgb(0,0,0)', width: 2, fillcolor: 'rgb(255,255,255)' } }
+            line: { color: '#1e293b', width: 4 },
+            marker: { size: 8, color: '#1e293b' },
+            hoverinfo: 'x'
         };
-        var data = [trace1]
-        //plotly
-        var myAx = document.getElementById("myFig")
-         
-        Plotly.newPlot(myAx, data, layout,{responsive: true, displayModeBar: false})
-    }
-    geoDraw(nodesX, loads, BC)
 
-
-    function linspace(min, max, nel) {
-        var nel = nel - 1
-        var xMax = max; //max x   
-        var xMin = min; //min x from previous section
-        var x = [...Array(nel + 1).keys()];
-        x = x.map(a => a * ((xMax - xMin) / nel) + xMin)
-        return x
+        const myAx = document.getElementById("myFig");
+        Plotly.newPlot(myAx, [trace1], layout, { responsive: true, displayModeBar: false });
     }
 
+    // Calculate shear force, moment, and deflection diagrams
+    const x_tot = [];
+    const y_tot = [];
+    const M_tot = [];
+    const v_tot = [];
+    const v_right = [sol2[1][1]];
 
-
-    //Time to calculate the shear force and moment diagram from reactions and loads!
-    x_tot = [];
-    y_tot = [];
-    V_tot = [];
-    M_tot = [];
-    v_tot = [];
-    v_right = [sol2[1][1]];
-
-
-
-    //calculate cumulative reaction force, left to right
-    var Ri = [sol2[sz][1]];
-    for (let i = 1; i < (sz / 2); i++) {
-        Ri[i] = Ri[i - 1] + sol2[sz + i * 2][1]; //right side of beam 1
+    // Calculate cumulative reaction forces
+    const Ri = [sol2[sz][1]];
+    for (let i = 1; i < sz / 2; i++) {
+        Ri[i] = Ri[i - 1] + sol2[sz + i * 2][1];
     }
 
-
-    //calculate node shear force beam-wise from left side by adding up reaction forces and loads
-    //then draw V(x) and integrate to get M(x) and v(x) 
-    var Vi = []
+    // Process each beam segment
+    const Vi = [];
     for (let i = 0; i < nodesX.length - 1; i++) {
+        const x_start = nodesX[i];
+        const x_end = nodesX[i + 1];
+        const n_el = 10000;
+        const x = linspace(x_start, x_end, n_el);
+        const dx = (x_end - x_start) / n_el;
 
-        var M = [];
-        x_start = nodesX[i];
-        x_end = nodesX[i + 1];
-        n_el = 10000;
-        x = linspace(x_start, x_end, n_el)
-        dx = (x_end - x_start) / n_el
+        // Find point loads to the left of current segment
+        const pID_left = pointLoads.x.map((px, idx) => px < x_start ? idx : null).filter(idx => idx !== null);
 
-
-        //find point loads before reaction
-        //pID = pointLoads.x.map((x, i) => (x > x_start && x <= x_end) ? i : null) 
-        //pID = pID.filter(x => x != null)//IDs
-        pID = pointLoads.x.map((x, i) => (x < x_start) ? i : null)
-        pID = pID.filter(x => x != null)//IDs
-        if (pID.length > 0) {
-            pSumLeft = pID.map(x => pointLoads.y[x]).reduce((curr, prev) => curr + prev)
-        } else {
-            pSumLeft = 0
+        let pSumLeft = 0;
+        if (pID_left.length > 0) {
+            pSumLeft = pID_left.map(idx => pointLoads.y[idx]).reduce((curr, prev) => curr + prev);
         }
 
-        qSumLeft = 0;
+        // Sum of distributed loads to the left
+        let qSumLeft = 0;
         for (let k = 0; k < i; k++) {
-            qSumLeft += loads[k] * (nodesX[k+1]-nodesX[k]);
+            qSumLeft += loads[k] * (nodesX[k + 1] - nodesX[k]);
         }
+
         Vi[i] = Ri[i] - qSumLeft - pSumLeft;
 
+        // Initialize shear force array
+        let y = new Array(x.length).fill(Vi[i]);
 
-        //initiate array at support shear force
-        y = new Array(x.length).fill(Vi[i])
+        // Find point loads within current segment
+        const pID_seg = pointLoads.x.map((px, idx) => (px >= x_start && px < x_end) ? idx : null).filter(idx => idx !== null);
 
-        pID = pointLoads.x.map((x, i) => (x >= x_start && x < x_end) ? i : null)
-        pID = pID.filter(x => x != null)//IDs
-        //loop over point loads in segment and adjust array y
-        for (let m = 0; m < pID.length; m++) {
-            y = x.map((n, k) => n >= pointLoads.x[pID[m]] ? y[k] - pointLoads.y[pID[m]] : y[k])
+        // Apply point load discontinuities
+        for (let m = 0; m < pID_seg.length; m++) {
+            y = x.map((xi, k) => xi >= pointLoads.x[pID_seg[m]] ? y[k] - pointLoads.y[pID_seg[m]] : y[k]);
         }
 
-        //loop over x to add UDL
-        y = y.map((x, u) => x - loads[i] * dx * u)
-        //integrate over shear force to get moment
-        for (let j = 1; j < x.length; j++) {
-            if (i == 0) {
-                M[0] = -sol2[sz + 1][1] //moment at left reaction
-            } else {
-                M[0] = M_tot[M_tot.length - 1] //moment from left side of support
-            }
-            M[j] = M[j - 1] + dx * y[j]
-        }
-        //integrate M twice to get deflection
-        a = [];
-        v = [];
+        // Apply distributed load
+        y = y.map((yi, k) => yi - loads[i] * dx * k);
 
-        a = new Array(x.length).fill(null)
-        v = new Array(x.length).fill(null)
-        a[0] = sol2[i * 2 + 1][1]
-        v[0] = sol2[i * 2][1]
+        // Integrate shear to get moment
+        const M = new Array(x.length);
+        if (i === 0) {
+            M[0] = -sol2[sz + 1][1]; // moment at left reaction
+        } else {
+            M[0] = M_tot[M_tot.length - 1]; // moment from left side of support
+        }
         for (let j = 1; j < x.length; j++) {
-            a[j] = a[j - 1] + dx * M[j]
-            v[j] = v[j - 1] + dx * a[j]
+            M[j] = M[j - 1] + dx * y[j];
+        }
+
+        // Double integrate moment to get deflection
+        const a = new Array(x.length);
+        const v = new Array(x.length);
+        a[0] = sol2[i * 2 + 1][1];
+        v[0] = sol2[i * 2][1];
+        for (let j = 1; j < x.length; j++) {
+            a[j] = a[j - 1] + dx * M[j];
+            v[j] = v[j - 1] + dx * a[j];
         }
 
         x_tot.push(...x);
         y_tot.push(...y);
         M_tot.push(...M);
         v_tot.push(...v);
-        v_right.push(v[v.length - 1])
+        v_right.push(v[v.length - 1]);
     }
-    //check if significant error in deflection
 
-    ax2 = document.getElementById('myPlot2');
-    //scale factors
-    const k_M = Math.max(...[Math.max(...M_tot), Math.abs(Math.min(...M_tot))])
-    const k_V = Math.max(...[Math.max(...y_tot), Math.abs(Math.min(...y_tot))])
-    const k_v = Math.max(...[Math.max(...v_tot), Math.abs(Math.min(...v_tot))])
+    // Plot results
+    const ax2 = document.getElementById('myPlot2');
 
-    var error = v_right.map((v, i) => Math.abs((v - sol2[i * 2][1])) / k_v).some(x => x > 0.05)
+    // Calculate scale factors
+    const k_M = Math.max(Math.max(...M_tot), Math.abs(Math.min(...M_tot))) || 1;
+    const k_V = Math.max(Math.max(...y_tot), Math.abs(Math.min(...y_tot))) || 1;
+    const k_v = Math.max(Math.max(...v_tot), Math.abs(Math.min(...v_tot))) || 1;
 
-    Math.abs(...M_tot)
-    trace = {
+    // Check for numerical errors
+    const error = v_right.map((v, i) => Math.abs((v - sol2[i * 2][1])) / k_v).some(x => x > 0.05);
+
+    const trace_V = {
         x: x_tot,
         y: y_tot.map(x => x / k_V),
-        mode: 'line',
+        mode: 'lines',
         fill: 'tozeroy',
-        name: 'Shear force, scale: ' + k_V.toExponential(2),
-    }
-    var trace_M = {
+        fillcolor: 'rgba(59, 130, 246, 0.2)',
+        line: { color: '#3b82f6', width: 2 },
+        name: 'Shear force, scale: ' + k_V.toExponential(2)
+    };
+
+    const trace_M = {
         x: x_tot,
         y: M_tot.map(x => x / k_M),
-        mode: 'line',
+        mode: 'lines',
         fill: 'tozeroy',
-        name: 'Moment, scale: ' + k_M.toExponential(2),
-    }
-    var trace_v = {
+        fillcolor: 'rgba(16, 185, 129, 0.2)',
+        line: { color: '#10b981', width: 2 },
+        name: 'Moment, scale: ' + k_M.toExponential(2)
+    };
+
+    const trace_v = {
         x: x_tot,
         y: v_tot.map(x => x / k_v),
-        mode: 'line',
-        name: 'Deflection, scale: ' + k_v.toExponential(2),
-    }
+        mode: 'lines',
+        line: { color: '#f59e0b', width: 2 },
+        name: 'Deflection, scale: ' + k_v.toExponential(2)
+    };
 
-    annotations = [{
+    const annotations = [{
         xref: 'paper',
         yref: 'paper',
         x: 0.5,
@@ -431,93 +432,104 @@ function mainFunction() {
         yanchor: 'bottom',
         text: 'ups... large error detected',
         showarrow: false,
-        font: { color: 'red', size: 30 },
-    }]
-    if (!error || error) {
-        annotations[0].opacity = 0
-    }
+        font: { color: '#dc2626', size: 24 },
+        opacity: error ? 1 : 0
+    }];
 
-    layout2 = {
-        xaxis: { range: [-0.1, totLength + 0.1], title: "", fixedrange: true,tickvals:nodesX,zeroline:false},
-        yaxis: { title: "c(x)",fixedrange: true,showgrid:false},
-        height:200,
+    const layout2 = {
+        xaxis: {
+            range: [-0.1, totLength + 0.1],
+            title: "",
+            fixedrange: true,
+            tickvals: nodesX,
+            zeroline: false,
+            gridcolor: 'rgba(148, 163, 184, 0.2)'
+        },
+        yaxis: {
+            title: "c(x)",
+            fixedrange: true,
+            showgrid: false,
+            zeroline: true,
+            zerolinecolor: 'rgba(148, 163, 184, 0.5)'
+        },
+        height: 220,
         showlegend: true,
         legend: {
             orientation: "h",
-            font: {
-              family: 'sans-serif',
-              size: 12,
-              color: '#000'
-            },
-          },
+            y: -0.2,
+            font: { family: 'system-ui, sans-serif', size: 11, color: '#64748b' },
+            bgcolor: 'rgba(255,255,255,0.9)',
+            bordercolor: '#e2e8f0',
+            borderwidth: 1
+        },
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
-        margin: { l: 0, b: 50, t: 0 },
+        margin: { l: 0, b: 60, t: 10, r: 0 },
         annotations: annotations,
-        grid: {rows:100},
-        autosize:true
-    }
+        autosize: true
+    };
 
+    const config = { responsive: true, displayModeBar: false };
+    const data2 = [trace_M, trace_V, trace_v];
+    Plotly.newPlot(ax2, data2, layout2, config);
 
-    var config = {responsive: true, displayModeBar:false} 
-    var data2 = [trace_M, trace, trace_v]
-    Plotly.newPlot(ax2, data2, layout2,config)
+    // Update stiffness matrix display
+    const p = document.getElementById('modal-body-text');
+    let matrixString = '$$EI\\begin{bmatrix}';
 
-    //write matrix
-    var p = document.getElementById('modal-body-text')
-    matrixString = '$$EI\\begin{bmatrix}';
     for (let i = 0; i < Ks.length; i++) {
-        rowString = Ks[i].map(x => Math.round(x)).toString()
-        rowString = rowString.replaceAll(',', '&')
+        const rowString = Ks[i].map(x => Math.round(x)).toString().replaceAll(',', '&');
         if (i < Ks.length) {
-            matrixString = matrixString.concat(rowString, '\\\\')
+            matrixString = matrixString.concat(rowString, '\\\\');
         }
     }
-    matrixString = matrixString.concat('\\end{bmatrix}', '\\begin{bmatrix}')
+
+    matrixString = matrixString.concat('\\end{bmatrix}', '\\begin{bmatrix}');
+
     for (let i = 0; i < Ks.length; i++) {
-        if (i % 2 == 0) {
-            rowString = "\\delta_" + (i / 2)
-        }
-        if (!(i % 2 == 0)) {
-            rowString = "\\phi_" + ((i - 1) / 2)
+        let rowString;
+        if (i % 2 === 0) {
+            rowString = "\\delta_" + (i / 2);
+        } else {
+            rowString = "\\phi_" + ((i - 1) / 2);
         }
         if (u_zero.includes(i)) {
-            rowString = '0'
+            rowString = '0';
         }
         if (i < Ks.length) {
-            matrixString = matrixString.concat(rowString, '\\\\')
+            matrixString = matrixString.concat(rowString, '\\\\');
         }
     }
-    matrixString = matrixString.concat('\\end{bmatrix} = \\begin{bmatrix}')
 
-    //Reactions
+    matrixString = matrixString.concat('\\end{bmatrix} = \\begin{bmatrix}');
+
+    // Reactions
     for (let i = 0; i < Ks.length; i++) {
-        if (i % 2 == 0) {
-            rowString = "R_{s," + (i / 2) + '}'
-        }
-        if (!(i % 2 == 0)) {
-            rowString = "M_{s," + ((i - 1) / 2) + '}'
+        let rowString;
+        if (i % 2 === 0) {
+            rowString = "R_{s," + (i / 2) + '}';
+        } else {
+            rowString = "M_{s," + ((i - 1) / 2) + '}';
         }
         if (R_zero.includes(i)) {
-            rowString = '0'
+            rowString = '0';
         }
         if (i < Ks.length) {
-            matrixString = matrixString.concat(rowString, '\\\\')
+            matrixString = matrixString.concat(rowString, '\\\\');
         }
     }
-    matrixString = matrixString.concat('\\end{bmatrix} + \\begin{bmatrix}')
-    //external forces
+
+    matrixString = matrixString.concat('\\end{bmatrix} + \\begin{bmatrix}');
+
+    // External forces
     for (let i = 0; i < Ks.length; i++) {
-        F_n_str = F_n.map(x => Math.round(x * 100) / 100)
-        rowString = F_n_str[i].toString() + "\\\\"
-        matrixString = matrixString.concat(rowString)
+        const F_n_str = F_n.map(x => Math.round(x * 100) / 100);
+        const rowString = F_n_str[i].toString() + "\\\\";
+        matrixString = matrixString.concat(rowString);
     }
-    matrixString = matrixString.concat('\\end{bmatrix}$$')
-    p.innerHTML = matrixString
-    MathJax.Hub.Queue(["Typeset", MathJax.Hub, p])
 
+    matrixString = matrixString.concat('\\end{bmatrix}$$');
 
-
+    p.innerHTML = matrixString;
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, p]);
 }
-
-

@@ -4,49 +4,36 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beam Analysis - Direct Stiffness Method</title>
+
+    <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/all.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
-        </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <script src="https://cdn.plot.ly/plotly-2.6.3.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-
-    <!--INPUT SPINNER-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-input-spinner@3.1.8/src/bootstrap-input-spinner.js"></script>
 
     <script>
         $(document).ready(function () {
             $("input[type='number']").inputSpinner({
-                // button text/icons
-                decrementButton: "<strong>-</strong>",
+                decrementButton: "<strong>&minus;</strong>",
                 incrementButton: "<strong>+</strong>",
-                // class of input group
                 groupClass: "input-group-spinner",
-                // button class
                 buttonsClass: "btn-outline-secondary",
-                // button width
                 buttonsWidth: "2.5em",
-                // text alignment
                 textAlign: "center",
-                // delay in milliseconds
                 autoDelay: 500,
-                // interval in milliseconds
                 autoInterval: 100,
-                // set this `true` to disable the possibility to enter or paste the number via keyboard
                 buttonsOnly: false,
-                // set this to `false` to disallow the use of the up and down arrow keys to step
                 keyboardStepping: true,
-                // the locale, per default detected automatically from the browser
                 locale: navigator.language,
-                // the template of the input
-
             })
         })
     </script>
@@ -54,197 +41,234 @@
 
 <body>
     <div class="wrapper">
-        <!--<div class="row "> -->
-        <div class="left shadow-lg p-3 mb-5 bg-white rounded">
-            <div class="inputs">
-                <div class="input-group pt-3">
-                    <div class="input-group-prepend">
-                        <label class="input-group-text" for="inputGroupSelect01">Beams</label>
+        <!-- Left Panel - Controls -->
+        <div class="left">
+            <div class="panel-header">
+                <h1>Beam Analysis</h1>
+                <p>Direct stiffness method for continuous beams</p>
+            </div>
+
+            <!-- Configuration Section -->
+            <div class="input-section">
+                <div class="section-title">Configuration</div>
+                <div class="select-group">
+                    <div class="select-wrapper">
+                        <label for="beamSelector">Beams</label>
+                        <select class="custom-select" id="beamSelector">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5" selected>5</option>
+                        </select>
                     </div>
-                    <select class="custom-select" id="beamSelector">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5" selected>5</option>
-                    </select>
                 </div>
-                <div class="input-group">
+            </div>
 
-                    <div class="input-group-prepend">
-                        <label class="input-group-text" for="inputGroupSelect01">Left support</label>
+            <!-- Boundary Conditions -->
+            <div class="input-section">
+                <div class="section-title">Boundary Conditions</div>
+                <div class="select-group">
+                    <div class="select-wrapper">
+                        <label for="LeftSupportCondition">Left support</label>
+                        <select class="custom-select" id="LeftSupportCondition">
+                            <option value="1">Pinned</option>
+                            <option value="2" selected>Rigid</option>
+                            <option value="0">Free</option>
+                        </select>
                     </div>
-                    <select class="custom-select" id="LeftSupportCondition">
-                        <option value="1">Pinned</option>
-                        <option value="2" selected>Rigid</option>
-                        <option value="0">Free</option>
-                    </select>
-                </div>
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <label class="input-group-text" for="inputGroupSelect01">Right support</label>
+                    <div class="select-wrapper">
+                        <label for="RightSupportCondition">Right support</label>
+                        <select class="custom-select" id="RightSupportCondition">
+                            <option value="1" selected>Pinned</option>
+                            <option value="2">Rigid</option>
+                            <option value="0">Free</option>
+                        </select>
                     </div>
-                    <select class="custom-select" id="RightSupportCondition">
-                        <option value="1" selected>Pinned</option>
-                        <option value="2">Rigid</option>
-                        <option value="0">Free</option>
-                    </select>
                 </div>
+            </div>
 
-
-
-
-                <div class="input-group type1" style="display:block;">
-                    <div class="row">
-                        <div class="col-6">
-                            <input id="L1" data-prefix="L<sub>1</sub>" class="lengths form-control-sm" type="number"
+            <!-- Beam Parameters -->
+            <div class="input-section">
+                <div class="section-title">Beam Parameters</div>
+                <div class="beam-params-grid">
+                    <!-- Beam 1 -->
+                    <div class="beam-param-row type1" style="display:grid;">
+                        <div class="param-input-group">
+                            <span class="param-label">Length L<sub>1</sub></span>
+                            <input id="L1" class="lengths form-control-sm" type="number"
                                 value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
                         </div>
-                        <div class="col-6">
-                            <input id="q1" data-prefix="q<sub>1</sub>" class="loads form-control-sm" type="number"
+                        <div class="param-input-group">
+                            <span class="param-label">Load q<sub>1</sub></span>
+                            <input id="q1" class="loads form-control-sm" type="number"
                                 value="50" min="0" max="100" step="5" />
                         </div>
                     </div>
+
+                    <!-- Beam 2 -->
+                    <div class="beam-param-row type1" style="display:grid;">
+                        <div class="param-input-group">
+                            <span class="param-label">Length L<sub>2</sub></span>
+                            <input id="L2" class="lengths form-control-sm" type="number"
+                                value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
+                        </div>
+                        <div class="param-input-group">
+                            <span class="param-label">Load q<sub>2</sub></span>
+                            <input id="q2" class="loads form-control-sm" type="number"
+                                value="0" min="0" max="100" step="5" />
+                        </div>
+                    </div>
+
+                    <!-- Beam 3 -->
+                    <div class="beam-param-row type1" style="display:grid;">
+                        <div class="param-input-group">
+                            <span class="param-label">Length L<sub>3</sub></span>
+                            <input id="L3" class="lengths form-control-sm" type="number"
+                                value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
+                        </div>
+                        <div class="param-input-group">
+                            <span class="param-label">Load q<sub>3</sub></span>
+                            <input id="q3" class="loads form-control-sm" type="number"
+                                value="0" min="0" max="100" step="5" />
+                        </div>
+                    </div>
+
+                    <!-- Beam 4 -->
+                    <div class="beam-param-row type1" style="display:grid;">
+                        <div class="param-input-group">
+                            <span class="param-label">Length L<sub>4</sub></span>
+                            <input id="L4" class="lengths form-control-sm" type="number"
+                                value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
+                        </div>
+                        <div class="param-input-group">
+                            <span class="param-label">Load q<sub>4</sub></span>
+                            <input id="q4" class="loads form-control-sm" type="number"
+                                value="0" min="0" max="100" step="5" />
+                        </div>
+                    </div>
+
+                    <!-- Beam 5 -->
+                    <div class="beam-param-row type1" style="display:grid;">
+                        <div class="param-input-group">
+                            <span class="param-label">Length L<sub>5</sub></span>
+                            <input id="L5" class="lengths form-control-sm" type="number"
+                                value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
+                        </div>
+                        <div class="param-input-group">
+                            <span class="param-label">Load q<sub>5</sub></span>
+                            <input id="q5" class="loads form-control-sm" type="number"
+                                value="0" min="0" max="100" step="5" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Point Loads -->
+            <div class="input-section point-loads-section">
+                <div class="section-title">Point Loads</div>
+                <div class="select-group">
+                    <div class="select-wrapper">
+                        <label for="ploadSelector">Count</label>
+                        <select class="custom-select" id="ploadSelector">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2" selected>2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="input-group type1" style="display:block;">
-                    <div class="row">
-                        <div class="col-6">
-                            <input id="L2" data-prefix="L<sub>2</sub>" class="lengths form-control-sm" type="number"
-                                value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
-                        </div>
-                        <div class="col-6">
-                            <input id="q2" data-prefix="q<sub>2</sub>" class="loads form-control-sm" type="number"
-                                value="0" min="0" max="100" step="5" />
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group type1 " style="display:block;">
-                    <div class="row">
-                        <div class="col-6">
-                            <input id="L3" data-prefix="L<sub>3</sub>" class="lengths form-control-sm" type="number"
-                                value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
-                        </div>
-                        <div class="col-6">
-                            <input id="q3" data-prefix="q<sub>3</sub>" class="loads form-control-sm" type="number"
-                                value="0" min="0" max="100" step="5" />
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group type1" style="display:block;">
-                    <div class="row">
-                        <div class="col-6">
-                            <input id="L4" data-prefix="L<sub>4</sub>" class="lengths form-control-sm" type="number"
-                                value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
-                        </div>
-                        <div class="col-6">
-                            <input id="q4" data-prefix="q<sub>4</sub>" class="loads form-control-sm" type="number"
-                                value="0" min="0" max="100" step="5" />
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group type1" style="display:block;">
-                    <div class="row">
-                        <div class="col-6">
-                            <input id="L5" data-prefix="L<sub>5</sub>" class="lengths form-control-sm" type="number"
-                                value="1" min="0.2" max="5" step="0.1" data-decimals="1" />
-                        </div>
-                        <div class="col-6">
-                            <input id="q5" data-prefix="q<sub>5</sub>" class="loads form-control-sm" type="number"
-                                value="0" min="0" max="100" step="5" />
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="input-group pt-5">
-                    <div class="input-group-prepend">
-                        <label class="input-group-text" for="inputGroupSelect01">Point loads</label>
-                    </div>
-                    <select class="custom-select" id="ploadSelector">
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="2" selected>2</option>
-                        <option value="3">3</option>
-                    </select>
-                </div>
-                <div class="input-group type2" style="display:block;">
-                    <div class="row">
-                        <div class="col-6">
-                            <input id="P1" data-prefix="P<sub>1</sub>" class="ploads form-control-sm" type="number"
+                <div class="beam-params-grid">
+                    <!-- Point Load 1 -->
+                    <div class="beam-param-row type2" style="display:grid;">
+                        <div class="param-input-group">
+                            <span class="param-label">Force P<sub>1</sub></span>
+                            <input id="P1" class="ploads form-control-sm" type="number"
                                 value="10" min="0" max="100" step="5" />
                         </div>
-                        <div class="col-6">
-                            <input id="P1" data-prefix="x<sub>1</sub>" class="ploadsx form-control-sm" type="number"
+                        <div class="param-input-group">
+                            <span class="param-label">Position x<sub>1</sub></span>
+                            <input id="x1" class="ploadsx form-control-sm" type="number"
                                 value="0.5" min="0.1" max="1" step="0.1" data-decimals="1" />
                         </div>
                     </div>
-                </div>
-                <div class="input-group type2" style="display:block;">
-                    <div class="row">
-                        <div class="col-6 ">
-                            <input id="P2" data-prefix="P<sub>2</sub>" class="ploads form-control-sm" type="number"
+
+                    <!-- Point Load 2 -->
+                    <div class="beam-param-row type2" style="display:grid;">
+                        <div class="param-input-group">
+                            <span class="param-label">Force P<sub>2</sub></span>
+                            <input id="P2" class="ploads form-control-sm" type="number"
                                 value="10" min="0" max="100" step="5" />
                         </div>
-                        <div class="col-6">
-                            <input id="P2" data-prefix="x<sub>2</sub>" class="ploadsx form-control-sm" type="number"
+                        <div class="param-input-group">
+                            <span class="param-label">Position x<sub>2</sub></span>
+                            <input id="x2" class="ploadsx form-control-sm" type="number"
                                 value="1.5" min="0.1" max="1" step="0.1" data-decimals="1" />
                         </div>
                     </div>
-                </div>
-                <div class="input-group type2" style="display:none;">
-                    <div class="row">
-                        <div class="col-6">
-                            <input id="P2" data-prefix="P<sub>3</sub>" class="ploads form-control-sm" type="number"
+
+                    <!-- Point Load 3 -->
+                    <div class="beam-param-row type2" style="display:none;">
+                        <div class="param-input-group">
+                            <span class="param-label">Force P<sub>3</sub></span>
+                            <input id="P3" class="ploads form-control-sm" type="number"
                                 value="10" min="0" max="100" step="5" />
                         </div>
-                        <div class="col-6">
-                            <input id="P3" data-prefix="x<sub>3</sub>" class="ploadsx form-control-sm" type="number"
+                        <div class="param-input-group">
+                            <span class="param-label">Position x<sub>3</sub></span>
+                            <input id="x3" class="ploadsx form-control-sm" type="number"
                                 value="0.7" min="0.1" max="1" step="0.1" data-decimals="1" />
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Button trigger modal -->
-                <div id="buttonDiv">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    Stiffness Matrix
-                </button>
-                </div>
-                <!-- Modal -->
-                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Stiffness matrix</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p id="modal-body-text"></p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            </div>
+            <!-- Stiffness Matrix Button -->
+            <button type="button" class="action-button" data-bs-toggle="modal" data-bs-target="#matrixModal">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                View Stiffness Matrix
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="matrixModal" tabindex="-1" aria-labelledby="matrixModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="matrixModalLabel">Stiffness Matrix</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="modal-body-text"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
-
-
             </div>
         </div>
+
+        <!-- Right Panel - Visualization -->
         <div class="right">
-            <div id="plotarea" class="shadow-lg p-3 mb-5 bg-body rounded">
-                <div id="myFig"></div>
-                <div id="myPlot2"></div>
+            <div id="plotarea">
+                <div class="plot-section">
+                    <div class="plot-title">Beam Geometry</div>
+                    <div id="myFig"></div>
+                </div>
+                <div class="plot-section">
+                    <div class="plot-title">Analysis Results</div>
+                    <div id="myPlot2"></div>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="app.js"></script>
-
-
 </body>
 
 </html>
